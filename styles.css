@@ -117,6 +117,30 @@ body {
 .faq details[open] summary::after { content: "−"; }
 .faq p { padding: 0 0 14px; color: var(--muted); font-size: 0.92rem; }
 
+/* 닉네임 입력 */
+.name-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 44px 32px; box-shadow: var(--shadow); text-align: center;
+  max-width: 480px; margin: 40px auto 0;
+}
+.name-badge {
+  display: inline-block; background: var(--primary-soft); color: var(--primary-dark);
+  font-weight: 700; font-size: 0.8rem; padding: 5px 13px; border-radius: 999px; margin-bottom: 16px;
+}
+.name-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.name-sub { font-size: 0.95rem; color: var(--muted); margin: 8px 0 26px; }
+.name-input {
+  width: 100%; font-family: inherit; font-size: 1.1rem; font-weight: 600; text-align: center;
+  padding: 16px 18px; border: 2px solid var(--line); border-radius: 14px; background: #fbfbfe;
+  color: var(--text); transition: border-color 0.15s, background 0.15s; outline: none;
+}
+.name-input::placeholder { color: #b0b8c4; font-weight: 500; }
+.name-input:focus { border-color: var(--primary); background: var(--primary-soft); }
+.name-input.invalid { border-color: #ef4444; background: #fef2f2; }
+.name-error { min-height: 20px; font-size: 0.85rem; color: #ef4444; font-weight: 600; margin: 8px 0 14px; }
+.name-card .btn-lg { width: 100%; margin-bottom: 10px; }
+.name-card .btn-ghost { width: 100%; }
+
 /* Progress */
 .progress-wrap { margin-bottom: 28px; }
 .progress-head { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 8px; }

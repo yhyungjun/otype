@@ -117,6 +117,20 @@
       </section>
     </section>
 
+    <!-- ===== 닉네임 입력 ===== -->
+    <section id="view-name" class="view">
+      <div class="name-card">
+        <span class="name-badge">시작하기 전에</span>
+        <h2 class="name-title">닉네임을 입력해 주세요</h2>
+        <p class="name-sub">결과 프로필에 표시되고, 검사 결과가 함께 저장됩니다.</p>
+        <input id="nickname-input" class="name-input" type="text" maxlength="20"
+               placeholder="닉네임 (최대 20자)" autocomplete="off" spellcheck="false" />
+        <p class="name-error" id="name-error"></p>
+        <button class="btn btn-primary btn-lg" data-action="submit-name">검사 시작하기</button>
+        <button class="btn btn-ghost" data-action="home">홈으로</button>
+      </div>
+    </section>
+
     <!-- ===== 검사 ===== -->
     <section id="view-test" class="view">
       <div class="progress-wrap">
@@ -145,7 +159,7 @@
       <!-- 커버 -->
       <div class="profile-cover">
         <div class="cover-logo"><span class="logo-dot"></span> OCEAN</div>
-        <div class="cover-kicker">나 는 누 구 인 가<span class="kicker-line"></span></div>
+        <div class="cover-kicker"><span id="r-kicker">나 는 누 구 인 가</span><span class="kicker-line"></span></div>
         <h1 class="cover-title" id="r-title">The Executor</h1>
         <p class="cover-sub" id="r-sub">유형 C · 실행가</p>
         <p class="cover-intro" id="r-intro">소개</p>

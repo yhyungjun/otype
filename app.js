@@ -1,10 +1,17 @@
+// Supabase (공개 키 — RLS로 보호됨)
+const SUPABASE_URL = "https://ydejsjrjminbyuquywuo.supabase.co";
+const SUPABASE_ANON = "sb_publishable_xIO_-uuvgxT0KkiTUF4Hng_izDPe-UZ";
+const NICK_MAX = 20;
+
 const state = {
   index: 0,
+  nickname: "",
   answers: new Array(QUESTIONS.length).fill(null),
 };
 
 const views = {
   intro: document.getElementById("view-intro"),
+  name: document.getElementById("view-name"),
   test: document.getElementById("view-test"),
   result: document.getElementById("view-result"),
 };
@@ -123,6 +130,9 @@ function finish() {
   const { type, levels, intro, strengths, blindspots, summary } = profile;
 
   // 커버
+  document.getElementById("r-kicker").textContent = state.nickname
+    ? `${state.nickname} 님, 나는 누구인가`
+    : "나 는 누 구 인 가";
   document.getElementById("r-title").textContent = type.title;
   document.getElementById("r-sub").textContent = `${type.code} · ${type.role}`;
   document.getElementById("r-intro").textContent = intro;
@@ -175,15 +185,74 @@ function finish() {
     `<strong>“${summary}”</strong> 스스로의 강점과 그늘을 함께 이해할 때, 이 프로필은 가장 큰 힘을 발휘합니다.`;
 
   state.lastResult = { pct, profile };
+  saveResult(pct, profile);
   show("result");
 }
 
 /* ---------- 액션 ---------- */
+function goToNameEntry() {
+  const input = document.getElementById("nickname-input");
+  const err = document.getElementById("name-error");
+  input.classList.remove("invalid");
+  err.textContent = "";
+  input.value = state.nickname || "";
+  show("name");
+  setTimeout(() => input.focus(), 60);
+}
+
+function submitName() {
+  const input = document.getElementById("nickname-input");
+  const err = document.getElementById("name-error");
+  const name = input.value.trim();
+  if (name.length < 1) {
+    input.classList.add("invalid");
+    err.textContent = "닉네임을 입력해 주세요.";
+    input.focus();
+    return;
+  }
+  if (name.length > NICK_MAX) {
+    input.classList.add("invalid");
+    err.textContent = `닉네임은 최대 ${NICK_MAX}자까지 가능합니다.`;
+    return;
+  }
+  state.nickname = name;
+  start();
+}
+
 function start() {
   state.index = 0;
   state.answers = new Array(QUESTIONS.length).fill(null);
   renderQuestion();
   show("test");
+}
+
+// 닉네임 입력에서 Enter 로 시작
+document.getElementById("nickname-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); submitName(); }
+});
+
+// Supabase 저장 (익명 insert, 실패해도 결과 화면은 정상 표시)
+function saveResult(pct, profile) {
+  if (!state.nickname) return;
+  fetch(`${SUPABASE_URL}/rest/v1/ocean_results`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON,
+      Authorization: `Bearer ${SUPABASE_ANON}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      nickname: state.nickname,
+      type_code: profile.type.code,
+      type_title: profile.type.title,
+      type_role: profile.type.role,
+      scores: pct,
+      answers: state.answers,
+    }),
+  })
+    .then((res) => { if (!res.ok) console.error("결과 저장 실패:", res.status); })
+    .catch((e) => console.error("결과 저장 네트워크 오류:", e));
 }
 
 function toast(msg) {
@@ -203,7 +272,8 @@ function copyResult() {
   if (!profile) return;
   const order = ["O", "C", "E", "A", "N"];
   const lines = order.map((k) => `${FACTORS[k].english}(${FACTORS[k].name}) ${pct[k]}%`).join(" · ");
-  const text = `[오션(OCEAN) 성격 검사] ${profile.type.title} · ${profile.type.code} ${profile.type.role}\n${lines}\n한 줄 요약: ${profile.summary}`;
+  const who = state.nickname ? `${state.nickname}님 · ` : "";
+  const text = `[오션(OCEAN) 성격 검사] ${who}${profile.type.title} · ${profile.type.code} ${profile.type.role}\n${lines}\n한 줄 요약: ${profile.summary}`;
   navigator.clipboard?.writeText(text).then(
     () => toast("결과 요약을 복사했어요 ✓"),
     () => toast("복사에 실패했어요")
@@ -265,7 +335,8 @@ document.addEventListener("click", (e) => {
   const action = btn?.dataset.action;
   if (!action) return;
   e.preventDefault();
-  if (action === "start") start();
+  if (action === "start") goToNameEntry();
+  else if (action === "submit-name") submitName();
   else if (action === "prev") { if (state.index > 0) { state.index -= 1; renderQuestion(); } }
   else if (action === "restart" || action === "home") { show("intro"); }
   else if (action === "copy") copyResult();
