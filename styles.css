@@ -19,7 +19,7 @@
 .ic { display: block; width: 100%; height: 100%; }
 .ic-wrap { display: inline-flex; width: 30px; height: 30px; color: var(--primary); }
 .ic-inline { width: 17px; height: 17px; vertical-align: -3px; }
-.badge .ic-inline { color: var(--primary-dark); margin-right: 5px; }
+.badge .ic-inline { color: #12409e; margin-right: 5px; }
 .btn .ic-inline { width: 18px; height: 18px; vertical-align: -4px; margin-right: 6px; }
 
 body {
@@ -60,8 +60,8 @@ body {
   background: radial-gradient(ellipse at center top, rgba(49, 130, 246, 0.12), rgba(49, 130, 246, 0) 65%);
 }
 .badge {
-  display: inline-block; background: var(--primary-soft); color: var(--primary-dark);
-  font-weight: 600; font-size: 0.85rem; padding: 6px 14px; border-radius: 999px; margin-bottom: 20px;
+  display: inline-block; background: var(--primary-soft); color: #12409e;
+  font-weight: 700; font-size: 0.85rem; padding: 6px 14px; border-radius: 999px; margin-bottom: 20px;
 }
 .hero h1 { font-size: 2.7rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; }
 .lead { font-size: 1.08rem; color: var(--muted); margin-bottom: 28px; }
@@ -124,7 +124,7 @@ body {
   max-width: 480px; margin: 40px auto 0;
 }
 .name-badge {
-  display: inline-block; background: var(--primary-soft); color: var(--primary-dark);
+  display: inline-block; background: var(--primary-soft); color: #12409e;
   font-weight: 700; font-size: 0.8rem; padding: 5px 13px; border-radius: 999px; margin-bottom: 16px;
 }
 .name-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
@@ -271,8 +271,8 @@ body {
 
 .result-view .result-actions { background: transparent; border: none; box-shadow: none; }
 .result-actions { display: flex; gap: 12px; justify-content: center; margin: 8px 0 16px; }
-.result-view .btn-ghost { color: var(--r-muted); border-color: var(--r-line); background: transparent; }
-.result-view .btn-ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+.result-view .btn-ghost { color: #364152; border-color: var(--line); background: transparent; }
+.result-view .btn-ghost:hover { color: var(--text); background: #fff; }
 
 .site-footer { border-top: 1px solid var(--line); padding: 24px 0; text-align: center; font-size: 0.82rem; color: var(--muted); }
 
