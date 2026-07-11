@@ -19,7 +19,7 @@ const MIME = {
 
 const server = http.createServer((req, res) => {
   let urlPath = decodeURIComponent(req.url.split("?")[0]);
-  if (urlPath === "/") urlPath = "/index.html";
+  if (urlPath.endsWith("/")) urlPath += "index.html";
 
   // 경로 이탈 방지
   const filePath = path.join(ROOT, path.normalize(urlPath));

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>OCEAN 어드민 · 검사 결과</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/logo-mark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .admin-wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 60px; }
+    .admin-head { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; }
+    .admin-head img { width: 30px; height: 30px; }
+    .admin-head h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+    .admin-head .count { margin-left: auto; font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+    .gate { max-width: 400px; margin: 60px auto 0; text-align: center; }
+    .gate .name-input { text-align: left; }
+    .gate .btn-lg { width: 100%; margin-top: 14px; }
+    .admin-status { text-align: center; color: var(--muted); padding: 40px 0; }
+    .rr-answers { font-size: 0.75rem; color: var(--muted); margin-top: 8px; word-break: break-all; }
+    .logout { font-size: 0.82rem; color: var(--primary-dark); background: none; border: none; cursor: pointer; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <!-- 로그인 게이트 -->
+    <section id="gate" class="gate">
+      <img src="../assets/logo-mark.svg" alt="" width="44" height="44" style="margin-bottom:14px" />
+      <h1 class="name-title">어드민 로그인</h1>
+      <p class="name-sub">검사 결과를 보려면 관리자 비밀번호를 입력하세요.</p>
+      <input id="pw" class="name-input" type="password" placeholder="관리자 비밀번호" autocomplete="current-password" />
+      <p class="name-error" id="err"></p>
+      <button class="btn btn-primary btn-lg" id="login">로그인</button>
+    </section>
+
+    <!-- 결과 -->
+    <section id="panel" style="display:none">
+      <div class="admin-head">
+        <img src="../assets/logo-mark.svg" alt="" />
+        <h1>검사 결과</h1>
+        <span class="count" id="count"></span>
+      </div>
+      <div style="text-align:right;margin-bottom:14px"><button class="logout" id="logout">로그아웃</button></div>
+      <div id="list" class="results-list"></div>
+    </section>
+  </div>
+
+  <script>
+    const FN_URL = "https://ydejsjrjminbyuquywuo.supabase.co/functions/v1/admin-results";
+    const FCOLOR = { O: "#8ab4f8", C: "#3182f6", E: "#1b64da", A: "#5b9bf7", N: "#9cc0ff" };
+    const ORDER = ["O", "C", "E", "A", "N"];
+    const SKEY = "ocean_admin_pw";
+
+    const $ = (id) => document.getElementById(id);
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function timeAgo(iso) {
+      const diff = Math.max(0, Date.now() - new Date(iso).getTime());
+      const min = Math.floor(diff / 60000);
+      if (min < 1) return "방금 전";
+      if (min < 60) return min + "분 전";
+      const hr = Math.floor(min / 60);
+      if (hr < 24) return hr + "시간 전";
+      const day = Math.floor(hr / 24);
+      if (day < 30) return day + "일 전";
+      const d = new Date(iso);
+      return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
+    }
+
+    function render(rows) {
+      $("count").textContent = "총 " + rows.length + "건";
+      if (!rows.length) { $("list").innerHTML = '<p class="admin-status">아직 결과가 없어요.</p>'; return; }
+      $("list").innerHTML = rows.map((r) => {
+        const s = r.scores || {};
+        const chips = ORDER.map((k) => `<span class="rr-score"><i style="background:${FCOLOR[k]}"></i>${k} ${typeof s[k] === "number" ? s[k] : "-"}</span>`).join("");
+        const t = [r.type_title, r.type_code, r.type_role].filter(Boolean);
+        const typeHtml = t.length ? `<div class="rr-type"><strong>${esc(t[0])}</strong>${t.slice(1).map((x) => " · " + esc(x)).join("")}</div>` : "";
+        return `<div class="rr-card">
+          <div class="rr-top"><span class="rr-nick">${esc(r.nickname || "익명")}</span><span class="rr-date">${timeAgo(r.created_at)}</span></div>
+          ${typeHtml}
+          <div class="rr-scores">${chips}</div>
+        </div>`;
+      }).join("");
+    }
+
+    async function fetchResults(pw) {
+      const res = await fetch(FN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pw }),
+      });
+      if (res.status === 401) throw new Error("비밀번호가 올바르지 않습니다.");
+      if (!res.ok) throw new Error("불러오기에 실패했습니다. (" + res.status + ")");
+      const data = await res.json();
+      return data.results || [];
+    }
+
+    async function authed(pw) {
+      $("gate").style.display = "none";
+      $("panel").style.display = "block";
+      $("list").innerHTML = '<p class="admin-status">불러오는 중…</p>';
+      try {
+        render(await fetchResults(pw));
+      } catch (e) {
+        $("list").innerHTML = '<p class="admin-status">' + esc(e.message) + "</p>";
+      }
+    }
+
+    async function login() {
+      const pw = $("pw").value.trim();
+      $("err").textContent = "";
+      if (!pw) { $("err").textContent = "비밀번호를 입력하세요."; return; }
+      $("login").disabled = true; $("login").textContent = "확인 중…";
+      try {
+        const rows = await fetchResults(pw);
+        sessionStorage.setItem(SKEY, pw);
+        $("gate").style.display = "none";
+        $("panel").style.display = "block";
+        render(rows);
+      } catch (e) {
+        $("err").textContent = e.message;
+      } finally {
+        $("login").disabled = false; $("login").textContent = "로그인";
+      }
+    }
+
+    $("login").addEventListener("click", login);
+    $("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+    $("logout").addEventListener("click", () => { sessionStorage.removeItem(SKEY); location.reload(); });
+
+    // 세션에 저장된 비번이 있으면 자동 로그인
+    const saved = sessionStorage.getItem(SKEY);
+    if (saved) authed(saved);
+  </script>
+</body>
+</html>
