@@ -93,6 +93,7 @@
         <button class="btn btn-primary btn-lg" data-action="start">
           오션 성격 검사 응시하기
         </button>
+        <button class="btn btn-ghost btn-results" data-action="show-results">다른 사람들 결과 보기</button>
       </div>
 
       <section class="discover">
@@ -205,6 +206,19 @@
         <button class="btn btn-primary" data-action="save-image"><svg class="ic-inline"><use href="#ic-image"/></svg>이미지로 저장</button>
         <button class="btn btn-ghost" data-action="restart">다시 검사하기</button>
         <button class="btn btn-ghost" data-action="copy">결과 요약 복사</button>
+        <button class="btn btn-ghost" data-action="show-results">결과 모아보기</button>
+      </div>
+    </section>
+
+    <!-- ===== 최근 결과 모아보기 ===== -->
+    <section id="view-results" class="view">
+      <div class="results-head">
+        <h2 class="results-title">최근 검사 결과</h2>
+        <p class="results-subtitle">오션 성격 검사를 완료한 사람들의 결과예요.</p>
+      </div>
+      <div id="results-list" class="results-list"></div>
+      <div class="results-actions">
+        <button class="btn btn-ghost" data-action="home">홈으로</button>
       </div>
     </section>
   </main>

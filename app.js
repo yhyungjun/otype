@@ -14,6 +14,7 @@ const views = {
   name: document.getElementById("view-name"),
   test: document.getElementById("view-test"),
   result: document.getElementById("view-result"),
+  results: document.getElementById("view-results"),
 };
 
 function show(name) {
@@ -330,6 +331,71 @@ async function saveImage(triggerBtn) {
   }
 }
 
+/* ---------- 최근 결과 모아보기 ---------- */
+const ORDER_KEYS = ["O", "C", "E", "A", "N"];
+
+function timeAgo(iso) {
+  const then = new Date(iso).getTime();
+  const diff = Math.max(0, Date.now() - then);
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "방금 전";
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}일 전`;
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderResultsList(rows) {
+  const listEl = document.getElementById("results-list");
+  if (!rows || rows.length === 0) {
+    listEl.innerHTML = '<p class="results-status">아직 결과가 없어요. 검사를 완료하면 여기에 표시됩니다.</p>';
+    return;
+  }
+  listEl.innerHTML = rows.map((r) => {
+    const scores = r.scores || {};
+    const chips = ORDER_KEYS.map((k) => {
+      const f = FACTORS[k];
+      const v = typeof scores[k] === "number" ? scores[k] : "-";
+      return `<span class="rr-score"><i style="background:${f.color}"></i>${k} ${v}</span>`;
+    }).join("");
+    const typeLine = [r.type_title, r.type_code, r.type_role].filter(Boolean);
+    const typeHtml = typeLine.length
+      ? `<div class="rr-type"><strong>${escapeHtml(typeLine[0])}</strong>${typeLine.slice(1).map((t) => ` · ${escapeHtml(t)}`).join("")}</div>`
+      : "";
+    return `
+      <div class="rr-card">
+        <div class="rr-top">
+          <span class="rr-nick">${escapeHtml(r.nickname || "익명")}</span>
+          <span class="rr-date">${timeAgo(r.created_at)}</span>
+        </div>
+        ${typeHtml}
+        <div class="rr-scores">${chips}</div>
+      </div>`;
+  }).join("");
+}
+
+async function loadResults() {
+  show("results");
+  const listEl = document.getElementById("results-list");
+  listEl.innerHTML = '<p class="results-status">불러오는 중…</p>';
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/ocean_results?select=nickname,type_title,type_code,type_role,scores,created_at&order=created_at.desc&limit=50`;
+    const res = await fetch(url, { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    renderResultsList(await res.json());
+  } catch (e) {
+    console.error("결과 불러오기 실패:", e);
+    listEl.innerHTML = '<p class="results-status">결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</p>';
+  }
+}
+
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-action]");
   const action = btn?.dataset.action;
@@ -341,6 +407,7 @@ document.addEventListener("click", (e) => {
   else if (action === "restart" || action === "home") { show("intro"); }
   else if (action === "copy") copyResult();
   else if (action === "save-image") saveImage(btn);
+  else if (action === "show-results") loadResults();
 });
 
 renderQuestion();

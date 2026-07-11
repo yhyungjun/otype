@@ -278,6 +278,26 @@ body {
 .result-view .btn-ghost { color: #364152; border-color: var(--line); background: transparent; }
 .result-view .btn-ghost:hover { color: var(--text); background: #fff; }
 
+/* 랜딩 '결과 보기' 보조 버튼 */
+.btn-results { margin-top: 12px; }
+
+/* 최근 결과 모아보기 */
+.results-head { text-align: center; padding: 32px 0 6px; }
+.results-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; }
+.results-subtitle { font-size: 0.95rem; color: var(--muted); margin-top: 8px; }
+.results-list { display: flex; flex-direction: column; gap: 12px; margin: 26px 0; }
+.results-status { text-align: center; color: var(--muted); font-size: 0.95rem; padding: 48px 0; }
+.rr-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow-sm); }
+.rr-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.rr-nick { font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+.rr-date { font-size: 0.78rem; color: var(--muted); flex-shrink: 0; }
+.rr-type { font-size: 0.9rem; color: var(--text); margin: 5px 0 12px; }
+.rr-type strong { color: var(--primary-dark); }
+.rr-scores { display: flex; flex-wrap: wrap; gap: 7px; }
+.rr-score { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 700; color: #374151; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+.rr-score i { width: 8px; height: 8px; border-radius: 50%; display: block; flex-shrink: 0; }
+.results-actions { display: flex; justify-content: center; margin-bottom: 34px; }
+
 .site-footer { border-top: 1px solid var(--line); padding: 24px 0; text-align: center; font-size: 0.82rem; color: var(--muted); }
 
 .toast {
