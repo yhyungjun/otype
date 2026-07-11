@@ -227,9 +227,13 @@ body {
 .trait-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 620px) { .trait-grid { grid-template-columns: 1fr; } }
 .trait-card { background: var(--r-card); border: 1px solid var(--r-line); border-radius: 16px; padding: 22px 22px 24px; }
-.tc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.tc-name { font-size: 1.2rem; font-weight: 800; }
-.tc-name em { font-style: normal; font-size: 0.82rem; font-weight: 500; color: var(--r-muted); margin-left: 6px; }
+.tc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.tc-name { font-size: 1.2rem; font-weight: 800; min-width: 0; }
+.tc-name em { font-style: normal; font-size: 0.82rem; font-weight: 500; color: var(--r-muted); margin-left: 6px; white-space: nowrap; }
+@media (max-width: 400px) {
+  .tc-name { font-size: 1.08rem; }
+  .tc-name em { font-size: 0.76rem; }
+}
 .tc-pill { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; padding: 4px 14px; border-radius: 999px; border: 1.5px solid; }
 .tc-slider { margin-bottom: 16px; }
 .tc-track { position: relative; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); }
