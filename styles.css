@@ -41,6 +41,8 @@ body {
 }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
 .brand { font-weight: 800; font-size: 1.15rem; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+.brand-logo { width: 26px; height: 26px; vertical-align: -6px; }
+.cover-logo-mark { width: 28px; height: 28px; display: block; }
 .brand-mark { color: var(--primary); }
 .breadcrumb { font-size: 0.82rem; color: var(--muted); }
 .breadcrumb .sep { margin: 0 6px; opacity: 0.5; }

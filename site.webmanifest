@@ -1,0 +1,13 @@
+{
+  "name": "오션(OCEAN) 성격 검사",
+  "short_name": "OCEAN",
+  "description": "나를 발견하는 심리 검사 플랫폼",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3182f6",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
