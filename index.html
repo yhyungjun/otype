@@ -136,14 +136,18 @@
       </section>
     </section>
 
-    <!-- ===== 닉네임 입력 ===== -->
+    <!-- ===== 이름 입력 ===== -->
     <section id="view-name" class="view">
       <div class="name-card">
         <span class="name-badge">시작하기 전에</span>
-        <h2 class="name-title">닉네임을 입력해 주세요</h2>
+        <h2 class="name-title">이름을 입력해 주세요</h2>
         <p class="name-sub">결과 프로필에 표시되고, 검사 결과가 함께 저장됩니다.</p>
-        <input id="nickname-input" class="name-input" type="text" maxlength="20"
-               placeholder="닉네임 (최대 20자)" autocomplete="off" spellcheck="false" />
+        <div class="name-fields">
+          <input id="last-name" class="name-input name-input--sm" type="text" maxlength="6"
+                 placeholder="성" autocomplete="family-name" spellcheck="false" />
+          <input id="first-name" class="name-input" type="text" maxlength="14"
+                 placeholder="이름" autocomplete="given-name" spellcheck="false" />
+        </div>
         <p class="name-error" id="name-error"></p>
         <button class="btn btn-primary btn-lg" data-action="submit-name">검사 시작하기</button>
         <button class="btn btn-ghost" data-action="home">홈으로</button>

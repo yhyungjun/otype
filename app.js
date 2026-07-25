@@ -191,31 +191,41 @@ function finish() {
 
 /* ---------- 액션 ---------- */
 function goToNameEntry() {
-  const input = document.getElementById("nickname-input");
+  const last = document.getElementById("last-name");
+  const first = document.getElementById("first-name");
   const err = document.getElementById("name-error");
-  input.classList.remove("invalid");
+  [last, first].forEach((el) => { el.classList.remove("invalid"); el.value = ""; });
   err.textContent = "";
-  input.value = state.nickname || "";
   show("name");
-  setTimeout(() => input.focus(), 60);
+  setTimeout(() => last.focus(), 60);
 }
 
 function submitName() {
-  const input = document.getElementById("nickname-input");
+  const lastEl = document.getElementById("last-name");
+  const firstEl = document.getElementById("first-name");
   const err = document.getElementById("name-error");
-  const name = input.value.trim();
-  if (name.length < 1) {
-    input.classList.add("invalid");
-    err.textContent = "닉네임을 입력해 주세요.";
-    input.focus();
+  lastEl.classList.remove("invalid");
+  firstEl.classList.remove("invalid");
+  const last = lastEl.value.trim();
+  const first = firstEl.value.trim();
+  if (!last) {
+    lastEl.classList.add("invalid");
+    err.textContent = "성을 입력해 주세요.";
+    lastEl.focus();
     return;
   }
-  if (name.length > NICK_MAX) {
-    input.classList.add("invalid");
-    err.textContent = `닉네임은 최대 ${NICK_MAX}자까지 가능합니다.`;
+  if (!first) {
+    firstEl.classList.add("invalid");
+    err.textContent = "이름을 입력해 주세요.";
+    firstEl.focus();
     return;
   }
-  state.nickname = name;
+  const full = last + first;
+  if (full.length > NICK_MAX) {
+    err.textContent = `성과 이름을 합쳐 최대 ${NICK_MAX}자까지 가능합니다.`;
+    return;
+  }
+  state.nickname = full;
   start();
 }
 
@@ -226,8 +236,11 @@ function start() {
   show("test");
 }
 
-// 닉네임 입력에서 Enter 로 시작
-document.getElementById("nickname-input").addEventListener("keydown", (e) => {
+// 성에서 Enter → 이름으로, 이름에서 Enter → 검사 시작
+document.getElementById("last-name").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); document.getElementById("first-name").focus(); }
+});
+document.getElementById("first-name").addEventListener("keydown", (e) => {
   if (e.key === "Enter") { e.preventDefault(); submitName(); }
 });
 
