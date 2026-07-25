@@ -34,13 +34,14 @@
     .d-bar-val { color: var(--text); flex-shrink: 0; }
     .d-track { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; }
     .d-track span { display: block; height: 100%; border-radius: 999px; }
-    .d-qa { display: flex; flex-direction: column; }
-    .d-qa-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; font-size: 0.84rem; padding: 7px 0; border-bottom: 1px dashed var(--line); }
-    .d-qa-row:last-child { border-bottom: none; }
-    .d-qa-num { font-size: 0.62rem; font-weight: 800; color: #fff; border-radius: 6px; padding: 2px 6px; margin-top: 2px; white-space: nowrap; }
-    .d-qa-text { color: #374151; line-height: 1.45; }
-    .d-qa-ans { font-weight: 700; color: var(--text); white-space: nowrap; }
-    @media (max-width: 480px) { .d-qa-row { grid-template-columns: auto 1fr; } .d-qa-ans { grid-column: 2; color: var(--primary-dark); } }
+    .d-intro { font-size: 0.9rem; line-height: 1.7; color: #374151; margin: 4px 0 2px; }
+    .d-trait-desc { font-size: 0.8rem; line-height: 1.55; color: var(--muted); margin-top: 7px; }
+    .d-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .d-list li { font-size: 0.86rem; line-height: 1.5; color: #374151; padding-left: 16px; position: relative; }
+    .d-list li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; }
+    .d-strong li::before { background: #16a34a; }
+    .d-blind li::before { background: #f59e0b; }
+    .d-summary { font-size: 0.92rem; font-weight: 600; line-height: 1.6; color: var(--text); background: var(--primary-soft); border-left: 3px solid var(--primary); border-radius: 10px; padding: 12px 14px; margin: 0; }
     .d-none { font-size: 0.82rem; color: var(--muted); }
   </style>
 </head>
@@ -71,8 +72,9 @@
     </section>
   </div>
 
-  <!-- 문항 텍스트·척도 라벨을 상세 보기에 쓰기 위해 로드 -->
+  <!-- 특성 정의 + 유형 분석 로직 (결과 리포트 재구성용) -->
   <script src="../data/questions.js"></script>
+  <script src="../data/archetypes.js"></script>
   <script>
     const FN_URL = "https://ydejsjrjminbyuquywuo.supabase.co/functions/v1/admin-results";
     const FCOLOR = { O: "#8ab4f8", C: "#3182f6", E: "#1b64da", A: "#5b9bf7", N: "#9cc0ff" };
@@ -83,10 +85,6 @@
     let allOpen = false;
 
     const $ = (id) => document.getElementById(id);
-    const scaleLabel = (v) => {
-      if (typeof SCALE !== "undefined") { const s = SCALE.find((x) => x.value === v); if (s) return s.label; }
-      return "";
-    };
 
     function esc(s) {
       return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -110,36 +108,41 @@
     }
     function levelOf(v) { return v >= 60 ? "높음" : v <= 40 ? "낮음" : "보통"; }
 
+    function traitLevel(v) { return v >= 60 ? "high" : v <= 40 ? "low" : "mid"; }
+
     function detailHtml(r) {
       const s = r.scores || {};
+      const canAnalyze = typeof buildProfile !== "undefined" && typeof FACTORS !== "undefined";
+      const profile = canAnalyze ? buildProfile(FACTORS, s) : null;
+
+      // 특성별 점수 막대 + 레벨 해석
       const bars = ORDER.map((k) => {
         const has = typeof s[k] === "number";
         const v = has ? s[k] : 0;
+        const desc = (typeof FACTORS !== "undefined" && FACTORS[k] && FACTORS[k].desc)
+          ? FACTORS[k].desc[traitLevel(v)] : "";
         return `<div class="d-bar">
           <div class="d-bar-top"><span>${FENG[k]} <em>${FNAME[k]}</em></span><span class="d-bar-val">${has ? v + "% · " + levelOf(v) : "-"}</span></div>
           <div class="d-track"><span style="width:${Math.max(v, 2)}%;background:${FCOLOR[k]}"></span></div>
+          ${desc ? `<p class="d-trait-desc">${esc(desc)}</p>` : ""}
         </div>`;
       }).join("");
-      const hasQ = typeof QUESTIONS !== "undefined";
-      const ans = Array.isArray(r.answers) && r.answers.length
-        ? `<div class="d-qa">${r.answers.map((a, i) => {
-            const q = hasQ && QUESTIONS[i] ? QUESTIONS[i] : null;
-            const color = q ? (FCOLOR[q.factor] || "#94a3b8") : "#94a3b8";
-            const lbl = scaleLabel(a);
-            const ansTxt = a == null ? "미응답" : (lbl ? lbl + " · " + a : String(a));
-            return `<div class="d-qa-row">
-              <span class="d-qa-num" style="background:${color}">Q${i + 1}</span>
-              <span class="d-qa-text">${q ? esc(q.text) : "문항 " + (i + 1)}</span>
-              <span class="d-qa-ans">${esc(ansTxt)}</span>
-            </div>`;
-          }).join("")}</div>`
-        : '<p class="d-none">문항별 응답 데이터가 없습니다.</p>';
+
+      const intro = profile ? `<p class="d-intro">${esc(profile.intro)}</p>` : "";
+      const strengths = profile && profile.strengths.length
+        ? `<div class="d-section-title">강점</div><ul class="d-list d-strong">${profile.strengths.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+      const blinds = profile && profile.blindspots.length
+        ? `<div class="d-section-title">주의할 점 (블라인드 스팟)</div><ul class="d-list d-blind">${profile.blindspots.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
+      const summary = profile ? `<div class="d-section-title">한 줄 요약</div><blockquote class="d-summary">“${esc(profile.summary)}”</blockquote>` : "";
+
       return `<div class="rr-detail" hidden>
         <div class="d-meta">응시 일시 · ${fullDate(r.created_at)}</div>
-        <div class="d-section-title">특성별 점수</div>
+        ${intro}
+        <div class="d-section-title">특성별 점수 · 해석</div>
         ${bars}
-        <div class="d-section-title">문항별 응답 (${Array.isArray(r.answers) ? r.answers.length : 0}문항)</div>
-        ${ans}
+        ${strengths}
+        ${blinds}
+        ${summary}
       </div>`;
     }
 
