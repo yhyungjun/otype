@@ -1,0 +1,23 @@
+name: Supabase Keep-Alive
+
+# 무료 Supabase는 약 1주 미사용 시 자동 정지됨.
+# 매일 keepalive 함수를 호출해 DB 활동을 유지 → 정지 방지.
+on:
+  schedule:
+    - cron: "23 5 * * *" # 매일 05:23 UTC (하루 1회, 7일 창에 충분한 여유)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake Supabase (keepalive function)
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+            --retry 3 --retry-delay 20 --retry-all-errors \
+            "https://ydejsjrjminbyuquywuo.supabase.co/functions/v1/keepalive")
+          echo "keepalive -> HTTP $code"
+          test "$code" = "200"
