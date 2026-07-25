@@ -88,13 +88,18 @@
     }
 
     async function fetchResults(pw) {
-      const res = await fetch(FN_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: pw }),
-      });
+      let res;
+      try {
+        res = await fetch(FN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pw }),
+        });
+      } catch (_) {
+        throw new Error("서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+      }
       if (res.status === 401) throw new Error("비밀번호가 올바르지 않습니다.");
-      if (!res.ok) throw new Error("불러오기에 실패했습니다. (" + res.status + ")");
+      if (!res.ok) throw new Error("서버 오류로 불러오지 못했습니다. (" + res.status + ")");
       const data = await res.json();
       return data.results || [];
     }
@@ -106,7 +111,11 @@
       try {
         render(await fetchResults(pw));
       } catch (e) {
-        $("list").innerHTML = '<p class="admin-status">' + esc(e.message) + "</p>";
+        // 자동 로그인 실패(비번 만료·서버 정지 등) → 저장된 비번 폐기하고 로그인 화면으로 복귀
+        sessionStorage.removeItem(SKEY);
+        $("panel").style.display = "none";
+        $("gate").style.display = "block";
+        $("err").textContent = e.message;
       }
     }
 
