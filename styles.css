@@ -140,7 +140,7 @@ body {
 .name-input:focus { border-color: var(--primary); background: var(--primary-soft); }
 .name-input.invalid { border-color: #ef4444; background: #fef2f2; }
 .name-fields { display: flex; gap: 10px; }
-.name-fields .name-input { flex: 1; width: auto; }
+.name-fields .name-input { flex: 1; width: auto; min-width: 0; }
 .name-fields .name-input--sm { flex: 0 0 32%; }
 .name-error { min-height: 20px; font-size: 0.85rem; color: #ef4444; font-weight: 600; margin: 8px 0 14px; }
 .name-card .btn-lg { width: 100%; margin-bottom: 10px; }

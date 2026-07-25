@@ -20,6 +20,9 @@
     .gate .btn-lg { width: 100%; margin-top: 14px; }
     .admin-status { text-align: center; color: var(--muted); padding: 40px 0; }
     .logout { font-size: 0.82rem; color: var(--primary-dark); background: none; border: none; cursor: pointer; font-weight: 700; }
+    .admin-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .tool-btn { font-size: 0.82rem; font-weight: 700; color: var(--primary-dark); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+    .tool-btn:hover { background: var(--primary-soft); }
     /* 결과 상세 */
     .d-toggle { margin-top: 12px; font-size: 0.82rem; font-weight: 700; color: var(--primary-dark); background: none; border: none; cursor: pointer; padding: 4px 0; }
     .rr-detail { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -31,10 +34,13 @@
     .d-bar-val { color: var(--text); flex-shrink: 0; }
     .d-track { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; }
     .d-track span { display: block; height: 100%; border-radius: 999px; }
-    .d-ans { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
-    @media (max-width: 560px) { .d-ans { grid-template-columns: repeat(5, 1fr); } }
-    .d-ans-cell { font-size: 0.72rem; font-weight: 700; text-align: center; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 5px 2px; color: #374151; }
-    .d-ans-cell b { display: block; font-size: 0.58rem; color: var(--muted); font-weight: 700; margin-bottom: 1px; }
+    .d-qa { display: flex; flex-direction: column; }
+    .d-qa-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; font-size: 0.84rem; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+    .d-qa-row:last-child { border-bottom: none; }
+    .d-qa-num { font-size: 0.62rem; font-weight: 800; color: #fff; border-radius: 6px; padding: 2px 6px; margin-top: 2px; white-space: nowrap; }
+    .d-qa-text { color: #374151; line-height: 1.45; }
+    .d-qa-ans { font-weight: 700; color: var(--text); white-space: nowrap; }
+    @media (max-width: 480px) { .d-qa-row { grid-template-columns: auto 1fr; } .d-qa-ans { grid-column: 2; color: var(--primary-dark); } }
     .d-none { font-size: 0.82rem; color: var(--muted); }
   </style>
 </head>
@@ -57,11 +63,16 @@
         <h1>검사 결과</h1>
         <span class="count" id="count"></span>
       </div>
-      <div style="text-align:right;margin-bottom:14px"><button class="logout" id="logout">로그아웃</button></div>
+      <div class="admin-tools">
+        <button class="tool-btn" id="expand-all" type="button">모두 펼치기</button>
+        <button class="logout" id="logout">로그아웃</button>
+      </div>
       <div id="list" class="results-list"></div>
     </section>
   </div>
 
+  <!-- 문항 텍스트·척도 라벨을 상세 보기에 쓰기 위해 로드 -->
+  <script src="../data/questions.js"></script>
   <script>
     const FN_URL = "https://ydejsjrjminbyuquywuo.supabase.co/functions/v1/admin-results";
     const FCOLOR = { O: "#8ab4f8", C: "#3182f6", E: "#1b64da", A: "#5b9bf7", N: "#9cc0ff" };
@@ -69,8 +80,13 @@
     const FENG = { O: "Openness", C: "Discipline", E: "Extraversion", A: "Empathy", N: "Sensitivity" };
     const ORDER = ["O", "C", "E", "A", "N"];
     const SKEY = "ocean_admin_pw";
+    let allOpen = false;
 
     const $ = (id) => document.getElementById(id);
+    const scaleLabel = (v) => {
+      if (typeof SCALE !== "undefined") { const s = SCALE.find((x) => x.value === v); if (s) return s.label; }
+      return "";
+    };
 
     function esc(s) {
       return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -104,20 +120,33 @@
           <div class="d-track"><span style="width:${Math.max(v, 2)}%;background:${FCOLOR[k]}"></span></div>
         </div>`;
       }).join("");
+      const hasQ = typeof QUESTIONS !== "undefined";
       const ans = Array.isArray(r.answers) && r.answers.length
-        ? `<div class="d-ans">${r.answers.map((a, i) => `<span class="d-ans-cell"><b>Q${i + 1}</b>${a == null ? "-" : a}</span>`).join("")}</div>`
+        ? `<div class="d-qa">${r.answers.map((a, i) => {
+            const q = hasQ && QUESTIONS[i] ? QUESTIONS[i] : null;
+            const color = q ? (FCOLOR[q.factor] || "#94a3b8") : "#94a3b8";
+            const lbl = scaleLabel(a);
+            const ansTxt = a == null ? "미응답" : (lbl ? lbl + " · " + a : String(a));
+            return `<div class="d-qa-row">
+              <span class="d-qa-num" style="background:${color}">Q${i + 1}</span>
+              <span class="d-qa-text">${q ? esc(q.text) : "문항 " + (i + 1)}</span>
+              <span class="d-qa-ans">${esc(ansTxt)}</span>
+            </div>`;
+          }).join("")}</div>`
         : '<p class="d-none">문항별 응답 데이터가 없습니다.</p>';
       return `<div class="rr-detail" hidden>
         <div class="d-meta">응시 일시 · ${fullDate(r.created_at)}</div>
         <div class="d-section-title">특성별 점수</div>
         ${bars}
-        <div class="d-section-title">문항별 응답 (1~5)</div>
+        <div class="d-section-title">문항별 응답 (${Array.isArray(r.answers) ? r.answers.length : 0}문항)</div>
         ${ans}
       </div>`;
     }
 
     function render(rows) {
       $("count").textContent = "총 " + rows.length + "건";
+      allOpen = false;
+      if ($("expand-all")) $("expand-all").textContent = "모두 펼치기";
       if (!rows.length) { $("list").innerHTML = '<p class="admin-status">아직 결과가 없어요.</p>'; return; }
       $("list").innerHTML = rows.map((r) => {
         const s = r.scores || {};
@@ -142,6 +171,16 @@
       if (!detail || !detail.classList.contains("rr-detail")) return;
       if (detail.hasAttribute("hidden")) { detail.removeAttribute("hidden"); btn.textContent = "접기"; }
       else { detail.setAttribute("hidden", ""); btn.textContent = "자세히 보기"; }
+    });
+
+    // 모두 펼치기 / 모두 접기
+    document.getElementById("expand-all").addEventListener("click", () => {
+      allOpen = !allOpen;
+      document.querySelectorAll("#list .rr-detail").forEach((d) => {
+        if (allOpen) d.removeAttribute("hidden"); else d.setAttribute("hidden", "");
+      });
+      document.querySelectorAll("#list .d-toggle").forEach((b) => { b.textContent = allOpen ? "접기" : "자세히 보기"; });
+      $("expand-all").textContent = allOpen ? "모두 접기" : "모두 펼치기";
     });
 
     async function fetchResults(pw) {
