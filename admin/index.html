@@ -19,8 +19,23 @@
     .gate .name-input { text-align: left; }
     .gate .btn-lg { width: 100%; margin-top: 14px; }
     .admin-status { text-align: center; color: var(--muted); padding: 40px 0; }
-    .rr-answers { font-size: 0.75rem; color: var(--muted); margin-top: 8px; word-break: break-all; }
     .logout { font-size: 0.82rem; color: var(--primary-dark); background: none; border: none; cursor: pointer; font-weight: 700; }
+    /* 결과 상세 */
+    .d-toggle { margin-top: 12px; font-size: 0.82rem; font-weight: 700; color: var(--primary-dark); background: none; border: none; cursor: pointer; padding: 4px 0; }
+    .rr-detail { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .d-meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+    .d-section-title { font-size: 0.78rem; font-weight: 800; color: var(--text); margin: 16px 0 10px; }
+    .d-bar { margin-bottom: 11px; }
+    .d-bar-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.84rem; font-weight: 700; margin-bottom: 5px; gap: 8px; }
+    .d-bar-top em { font-style: normal; color: var(--muted); font-size: 0.76rem; font-weight: 500; margin-left: 4px; }
+    .d-bar-val { color: var(--text); flex-shrink: 0; }
+    .d-track { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; }
+    .d-track span { display: block; height: 100%; border-radius: 999px; }
+    .d-ans { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+    @media (max-width: 560px) { .d-ans { grid-template-columns: repeat(5, 1fr); } }
+    .d-ans-cell { font-size: 0.72rem; font-weight: 700; text-align: center; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 5px 2px; color: #374151; }
+    .d-ans-cell b { display: block; font-size: 0.58rem; color: var(--muted); font-weight: 700; margin-bottom: 1px; }
+    .d-none { font-size: 0.82rem; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -50,6 +65,8 @@
   <script>
     const FN_URL = "https://ydejsjrjminbyuquywuo.supabase.co/functions/v1/admin-results";
     const FCOLOR = { O: "#8ab4f8", C: "#3182f6", E: "#1b64da", A: "#5b9bf7", N: "#9cc0ff" };
+    const FNAME = { O: "개방성", C: "성실성", E: "외향성", A: "우호성", N: "신경성" };
+    const FENG = { O: "Openness", C: "Discipline", E: "Extraversion", A: "Empathy", N: "Sensitivity" };
     const ORDER = ["O", "C", "E", "A", "N"];
     const SKEY = "ocean_admin_pw";
 
@@ -70,6 +87,34 @@
       const d = new Date(iso);
       return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
     }
+    function fullDate(iso) {
+      const d = new Date(iso);
+      const p = (n) => String(n).padStart(2, "0");
+      return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+    function levelOf(v) { return v >= 60 ? "높음" : v <= 40 ? "낮음" : "보통"; }
+
+    function detailHtml(r) {
+      const s = r.scores || {};
+      const bars = ORDER.map((k) => {
+        const has = typeof s[k] === "number";
+        const v = has ? s[k] : 0;
+        return `<div class="d-bar">
+          <div class="d-bar-top"><span>${FENG[k]} <em>${FNAME[k]}</em></span><span class="d-bar-val">${has ? v + "% · " + levelOf(v) : "-"}</span></div>
+          <div class="d-track"><span style="width:${Math.max(v, 2)}%;background:${FCOLOR[k]}"></span></div>
+        </div>`;
+      }).join("");
+      const ans = Array.isArray(r.answers) && r.answers.length
+        ? `<div class="d-ans">${r.answers.map((a, i) => `<span class="d-ans-cell"><b>Q${i + 1}</b>${a == null ? "-" : a}</span>`).join("")}</div>`
+        : '<p class="d-none">문항별 응답 데이터가 없습니다.</p>';
+      return `<div class="rr-detail" hidden>
+        <div class="d-meta">응시 일시 · ${fullDate(r.created_at)}</div>
+        <div class="d-section-title">특성별 점수</div>
+        ${bars}
+        <div class="d-section-title">문항별 응답 (1~5)</div>
+        ${ans}
+      </div>`;
+    }
 
     function render(rows) {
       $("count").textContent = "총 " + rows.length + "건";
@@ -83,9 +128,21 @@
           <div class="rr-top"><span class="rr-nick">${esc(r.nickname || "익명")}</span><span class="rr-date">${timeAgo(r.created_at)}</span></div>
           ${typeHtml}
           <div class="rr-scores">${chips}</div>
+          <button class="d-toggle" type="button">자세히 보기</button>
+          ${detailHtml(r)}
         </div>`;
       }).join("");
     }
+
+    // 카드 펼치기/접기
+    document.getElementById("list").addEventListener("click", (e) => {
+      const btn = e.target.closest(".d-toggle");
+      if (!btn) return;
+      const detail = btn.nextElementSibling;
+      if (!detail || !detail.classList.contains("rr-detail")) return;
+      if (detail.hasAttribute("hidden")) { detail.removeAttribute("hidden"); btn.textContent = "접기"; }
+      else { detail.setAttribute("hidden", ""); btn.textContent = "자세히 보기"; }
+    });
 
     async function fetchResults(pw) {
       let res;
