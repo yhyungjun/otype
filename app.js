@@ -397,28 +397,21 @@ function updateAuthUI(session) {
   el.append(name, out);
 }
 
-// Supabase 저장 (익명 insert, 실패해도 결과 화면은 정상 표시)
+// Supabase 저장 (로그인 사용자 insert, 실패해도 결과 화면은 정상 표시)
 function saveResult(pct, profile) {
   if (!state.nickname) return;
-  fetch(`${SUPABASE_URL}/rest/v1/ocean_results`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON,
-      Authorization: `Bearer ${SUPABASE_ANON}`,
-      Prefer: "return=minimal",
-    },
-    body: JSON.stringify({
+  sb.from("ocean_results")
+    .insert({
       nickname: state.nickname,
       type_code: profile.type.code,
       type_title: profile.type.title,
       type_role: profile.type.role,
       scores: pct,
       answers: state.answers,
-    }),
-  })
-    .then((res) => { if (!res.ok) console.error("결과 저장 실패:", res.status); })
-    .catch((e) => console.error("결과 저장 네트워크 오류:", e));
+    })
+    .then(({ error }) => {
+      if (error) console.error("결과 저장 실패:", error.message);
+    });
 }
 
 function toast(msg) {
