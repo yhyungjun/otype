@@ -123,6 +123,59 @@ function drawRadar(pct, levels) {
   svg.innerHTML = out;
 }
 
+/* ---------- 표본 비교 바 렌더 ---------- */
+function renderNormBars(container, norms) {
+  container.innerHTML = "";
+  norms.forEach(({ key, pct, topPercent }) => {
+    const f = FACTORS[key];
+    const row = document.createElement("div");
+    row.className = "norm-row";
+    row.innerHTML = `
+      <div class="norm-label">
+        <span class="norm-factor-en">${f.english}</span>
+        <span class="norm-factor-kr">${f.name}</span>
+      </div>
+      <div class="norm-bar-wrap">
+        <div class="norm-bar-track">
+          <div class="norm-bar-fill" style="width:${pct}%;background:${f.color}"></div>
+        </div>
+      </div>
+      <span class="norm-top">상위 약 ${topPercent}%</span>`;
+    container.appendChild(row);
+  });
+}
+
+/* ---------- 커리어 적합도 렌더 ---------- */
+function renderCareer(container, career) {
+  container.innerHTML = "";
+  const chips = document.createElement("div");
+  chips.className = "career-chips";
+  career.roles.forEach((role) => {
+    const chip = document.createElement("span");
+    chip.className = "career-chip";
+    chip.textContent = role;
+    chips.appendChild(chip);
+  });
+  container.appendChild(chips);
+  const note = document.createElement("p");
+  note.className = "career-note";
+  note.textContent = career.note;
+  container.appendChild(note);
+}
+
+/* ---------- 협업 인사이트 렌더 ---------- */
+function renderCollab(container, collab) {
+  container.innerHTML = "";
+  const ul = document.createElement("ul");
+  ul.className = "collab-list";
+  collab.forEach((text) => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    ul.appendChild(li);
+  });
+  container.appendChild(ul);
+}
+
 /* ---------- 결과 렌더 (PDF 프로필 형식) ---------- */
 function finish() {
   const pct = computeScores();
@@ -139,6 +192,9 @@ function finish() {
   document.getElementById("r-foot").textContent = `${type.title} · ${type.code}`;
 
   drawRadar(pct, levels);
+
+  // 표본 비교
+  renderNormBars(document.getElementById("norm-bars"), profile.norms);
 
   // 특성 카드
   const grid = document.getElementById("trait-grid");
@@ -179,6 +235,10 @@ function finish() {
   sList.innerHTML = strengths.map((s) => `<li>${s}</li>`).join("");
   const bList = document.getElementById("blindspot-list");
   bList.innerHTML = blindspots.map((b) => `<li>${b}</li>`).join("");
+
+  // 커리어 적합도 · 협업 인사이트
+  renderCareer(document.getElementById("career-block"), profile.career);
+  renderCollab(document.getElementById("collab-block"), profile.collab);
 
   // 한 줄 요약
   document.getElementById("r-summary").innerHTML =

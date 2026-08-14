@@ -283,6 +283,46 @@ body {
 .result-view .btn-ghost { color: #364152; border-color: var(--line); background: transparent; }
 .result-view .btn-ghost:hover { color: var(--text); background: #fff; }
 
+/* 표본 비교 */
+.norm-section { padding: 32px; }
+.norm-caption { font-size: 0.86rem; color: var(--r-muted); margin-bottom: 20px; }
+.norm-disclaimer { font-size: 0.76rem; color: var(--r-muted); margin-top: 16px; opacity: 0.8; }
+.norm-row { display: grid; grid-template-columns: 100px 1fr auto; align-items: center; gap: 12px; margin-bottom: 14px; }
+.norm-label { display: flex; flex-direction: column; gap: 2px; }
+.norm-factor-en { font-size: 0.82rem; font-weight: 700; }
+.norm-factor-kr { font-size: 0.72rem; color: var(--r-muted); }
+.norm-bar-wrap { flex: 1; }
+.norm-bar-track { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.norm-bar-fill { height: 100%; border-radius: 999px; transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.norm-top { font-size: 0.76rem; font-weight: 700; color: var(--r-muted); white-space: nowrap; text-align: right; min-width: 72px; }
+@media (max-width: 480px) {
+  .norm-row { grid-template-columns: 80px 1fr auto; gap: 8px; }
+  .norm-top { min-width: 60px; font-size: 0.7rem; }
+}
+
+/* 커리어 적합도 */
+.career-section { padding: 32px; }
+.career-disclaimer { font-size: 0.76rem; color: var(--r-muted); margin-top: 14px; opacity: 0.8; }
+.career-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.career-chip {
+  font-size: 0.82rem; font-weight: 700; color: var(--r-accent);
+  background: rgba(75, 143, 252, 0.12); border: 1px solid rgba(75, 143, 252, 0.30);
+  border-radius: 999px; padding: 5px 14px; letter-spacing: 0.02em;
+}
+.career-note { font-size: 0.9rem; line-height: 1.7; color: #d3cfe8; }
+
+/* 협업 인사이트 */
+.collab-section { padding: 32px; }
+.collab-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.collab-list li {
+  font-size: 0.9rem; line-height: 1.65; color: #d3cfe8;
+  padding-left: 20px; position: relative;
+}
+.collab-list li::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--r-accent);
+}
+
 /* 결과 카드 (어드민 페이지에서 사용) */
 .results-list { display: flex; flex-direction: column; gap: 12px; margin: 26px 0; }
 .rr-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow-sm); }
