@@ -166,7 +166,7 @@ function buildCareer(FACTORS, levels) {
   });
 
   // 중복 제거 후 상위 3–5개 유지
-  const deduped = collected.filter((r, i) => collected.indexOf(r) === i);
+  const deduped = [...new Set(collected)];
   const roles = deduped.length > 0 ? deduped.slice(0, 5) : ["기획·운영 전반", "조율형 역할"];
 
   // 가장 두드러진 1–2개 특성을 note 문장에 인용
@@ -189,13 +189,20 @@ function buildCareer(FACTORS, levels) {
 
 // 협업 스타일 — 팀 역할·소통·팁을 담은 3개 불렛 반환
 function buildCollab(FACTORS, levels) {
-  // 불렛 1: 팀에서의 역할 — |pct-50| 기준 가장 두드러진 특성 도출
-  // levels 만으로 순위를 매길 때는 H/L 여부를 우선, M 은 후순위
-  const devOrder = ["O", "C", "E", "A", "N"].slice().sort((a, b) => {
-    const score = (lv) => (lv === "H" || lv === "L" ? 1 : 0);
-    return score(levels[b]) - score(levels[a]);
-  });
-  const dominant = devOrder[0];
+  // 균형형 폴백: 모든 특성이 M인 경우
+  const allM = ["O", "C", "E", "A", "N"].every((k) => levels[k] === "M");
+  if (allM) {
+    return [
+      "팀 역할: 상황에 맞춰 유연하게 여러 역할을 오가는 균형형 팀원입니다.",
+      "소통 스타일: 주도와 경청 사이 균형을 유지하며 상황에 따라 적절한 방식을 선택합니다.",
+      "협업 팁: 어느 한 역할에 안주하지 말고 상황별 강점을 의식적으로 꺼내쓰세요.",
+    ];
+  }
+
+  // 불렛 1: 팀에서의 역할 — H 또는 L인 특성 중 CORE_PRIORITY 순서로 tiebreak
+  const notable = CORE_PRIORITY.filter((k) => levels[k] === "H" || levels[k] === "L");
+  // CORE_PRIORITY 순서로 필터했으므로 첫 번째가 tiebreak 기준 dominant
+  const dominant = notable.length > 0 ? notable[0] : CORE_PRIORITY[0];
   const dominantLv = levels[dominant];
 
   const roleDesc = {
