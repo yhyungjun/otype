@@ -211,6 +211,15 @@ body {
 .name-error { min-height: 20px; font-size: 0.85rem; color: #ef4444; font-weight: 600; margin: 8px 0 14px; }
 .name-card .btn-lg { width: 100%; margin-bottom: 10px; }
 .name-card .btn-ghost { width: 100%; }
+/* 소셜 로그인 */
+.btn-kakao { background: #FEE500; color: #191600; }
+.btn-kakao:hover { background: #f5dc00; }
+.btn-google { background: #fff; color: #1f1f1f; border: 1px solid var(--line); }
+.btn-google:hover { background: #f6f8fa; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.auth-status { display: flex; align-items: center; gap: 10px; }
+.auth-name { font-size: 0.9rem; color: var(--muted); font-weight: 600; }
+.auth-logout { background: transparent; border: 0; color: var(--muted); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0; }
 
 /* Progress */
 .progress-wrap { margin-bottom: 28px; }
