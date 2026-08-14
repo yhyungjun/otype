@@ -1,7 +1,4 @@
-// Supabase (공개 키 — RLS로 보호됨)
-const SUPABASE_URL = "https://ydejsjrjminbyuquywuo.supabase.co";
-const SUPABASE_ANON = "sb_publishable_xIO_-uuvgxT0KkiTUF4Hng_izDPe-UZ";
-const NICK_MAX = 20;
+// 인증·저장은 auth.js의 전역 `sb`/`Auth` 사용
 
 // 랜딩 카드 미리보기용 샘플 프로필 (실행가/The Executor 유형)
 const SAMPLE_PCT = { O: 62, C: 82, E: 48, A: 66, N: 35 };
@@ -14,7 +11,7 @@ const state = {
 
 const views = {
   intro: document.getElementById("view-intro"),
-  name: document.getElementById("view-name"),
+  login: document.getElementById("view-login"),
   test: document.getElementById("view-test"),
   result: document.getElementById("view-result"),
 };
@@ -365,45 +362,6 @@ function finish() {
 }
 
 /* ---------- 액션 ---------- */
-function goToNameEntry() {
-  const last = document.getElementById("last-name");
-  const first = document.getElementById("first-name");
-  const err = document.getElementById("name-error");
-  [last, first].forEach((el) => { el.classList.remove("invalid"); el.value = ""; });
-  err.textContent = "";
-  show("name");
-  setTimeout(() => last.focus(), 60);
-}
-
-function submitName() {
-  const lastEl = document.getElementById("last-name");
-  const firstEl = document.getElementById("first-name");
-  const err = document.getElementById("name-error");
-  lastEl.classList.remove("invalid");
-  firstEl.classList.remove("invalid");
-  const last = lastEl.value.trim();
-  const first = firstEl.value.trim();
-  if (!last) {
-    lastEl.classList.add("invalid");
-    err.textContent = "성을 입력해 주세요.";
-    lastEl.focus();
-    return;
-  }
-  if (!first) {
-    firstEl.classList.add("invalid");
-    err.textContent = "이름을 입력해 주세요.";
-    firstEl.focus();
-    return;
-  }
-  const full = last + first;
-  if (full.length > NICK_MAX) {
-    err.textContent = `성과 이름을 합쳐 최대 ${NICK_MAX}자까지 가능합니다.`;
-    return;
-  }
-  state.nickname = full;
-  start();
-}
-
 function start() {
   state.index = 0;
   state.answers = new Array(QUESTIONS.length).fill(null);
@@ -411,13 +369,33 @@ function start() {
   show("test");
 }
 
-// 성에서 Enter → 이름으로, 이름에서 Enter → 검사 시작
-document.getElementById("last-name").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") { e.preventDefault(); document.getElementById("first-name").focus(); }
-});
-document.getElementById("first-name").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") { e.preventDefault(); submitName(); }
-});
+// 로그인 게이트: 세션 없으면 로그인 화면, 있으면 검사 시작
+async function beginFlow() {
+  const session = await Auth.getSession();
+  if (!session) { show("login"); return; }
+  beginTest(session);
+}
+
+function beginTest(session) {
+  state.nickname = Auth.displayName(session);
+  start();
+}
+
+// 헤더 로그인 상태 표시(제공자 제공 이름은 textContent로 안전하게 삽입)
+function updateAuthUI(session) {
+  const el = document.getElementById("auth-status");
+  if (!el) return;
+  el.innerHTML = "";
+  if (!session) return;
+  const name = document.createElement("span");
+  name.className = "auth-name";
+  name.textContent = `${Auth.displayName(session)} 님`;
+  const out = document.createElement("button");
+  out.className = "auth-logout";
+  out.dataset.action = "logout";
+  out.textContent = "로그아웃";
+  el.append(name, out);
+}
 
 // Supabase 저장 (익명 insert, 실패해도 결과 화면은 정상 표시)
 function saveResult(pct, profile) {
@@ -523,12 +501,23 @@ document.addEventListener("click", (e) => {
   const action = btn?.dataset.action;
   if (!action) return;
   e.preventDefault();
-  if (action === "start") goToNameEntry();
-  else if (action === "submit-name") submitName();
+  if (action === "start") beginFlow();
+  else if (action === "login-kakao") Auth.signIn("kakao");
+  else if (action === "login-google") Auth.signIn("google");
+  else if (action === "logout") Auth.signOut();
   else if (action === "prev") { if (state.index > 0) { state.index -= 1; renderQuestion(); } }
   else if (action === "restart" || action === "home") { show("intro"); }
   else if (action === "copy") copyResult();
   else if (action === "save-image") saveImage(btn);
+});
+
+// 세션 변화 → 헤더 갱신. 로그인 직후(자동시작 플래그)면 검사로 바로 진입.
+sb.auth.onAuthStateChange((_event, session) => {
+  updateAuthUI(session);
+  if (session && sessionStorage.getItem(AUTOSTART_KEY)) {
+    sessionStorage.removeItem(AUTOSTART_KEY);
+    beginTest(session);
+  }
 });
 
 renderQuestion();
