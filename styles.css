@@ -366,7 +366,6 @@ body {
 .norm-label { display: flex; flex-direction: column; gap: 2px; }
 .norm-factor-en { font-size: 0.82rem; font-weight: 700; }
 .norm-factor-kr { font-size: 0.72rem; color: var(--r-muted); }
-.norm-bar-wrap { flex: 1; }
 .norm-bar-track { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
 .norm-bar-fill { height: 100%; border-radius: 999px; transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .norm-top { font-size: 0.76rem; font-weight: 700; color: var(--r-muted); white-space: nowrap; text-align: right; min-width: 72px; }
