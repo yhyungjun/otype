@@ -54,7 +54,8 @@
     - O {mean:63, sd:16}, C {mean:61, sd:17}, E {mean:52, sd:19}, A {mean:68, sd:15}, N {mean:49, sd:19}
     - 값은 조정 가능한 단일 상수 블록으로. 실제 IPIP 규준 확보 시 교체.
   - z = (pct - mean)/sd → 정규 CDF 근사(`normalCdf`, Abramowitz-Stegun erf 근사)로 백분위.
-  - `percentile`(하위부터 %), `band`("상위 약 X%" 표기용). 특성별로 반환.
+  - `percentile`(하위부터 %, 1~99 클램프), `topPercent`(= 100 - percentile, 숫자). 데이터는 숫자로만
+    반환하고 "상위 약 X%" 문자열 포맷은 렌더러(뷰 계층)가 담당한다. 특성별로 반환.
 
 `buildProfile` 반환 객체에 `career`, `collab`, `norms` 추가.
 
