@@ -378,6 +378,7 @@ async function beginFlow() {
 
 function beginTest(session) {
   state.nickname = Auth.displayName(session);
+  state.userId = session.user.id;
   start();
 }
 
@@ -399,9 +400,12 @@ function updateAuthUI(session) {
 
 // Supabase 저장 (로그인 사용자 insert, 실패해도 결과 화면은 정상 표시)
 function saveResult(pct, profile) {
-  if (!state.nickname) return;
+  if (!state.nickname || !state.userId) return;
   sb.from("ocean_results")
     .insert({
+      // user_id를 명시적으로 전송(컬럼 기본값 auth.uid()가 insert 시점에 채워지지 않는 문제 회피).
+      // RLS의 WITH CHECK(user_id = auth.uid())가 위조를 막는다.
+      user_id: state.userId,
       nickname: state.nickname,
       type_code: profile.type.code,
       type_title: profile.type.title,
