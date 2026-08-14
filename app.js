@@ -411,7 +411,8 @@ function saveResult(pct, profile) {
     })
     .then(({ error }) => {
       if (error) console.error("결과 저장 실패:", error.message);
-    });
+    })
+    .catch((e) => console.error("결과 저장 네트워크 오류:", e));
 }
 
 function toast(msg) {
@@ -505,9 +506,10 @@ document.addEventListener("click", (e) => {
 });
 
 // 세션 변화 → 헤더 갱신. 로그인 직후(자동시작 플래그)면 검사로 바로 진입.
-sb.auth.onAuthStateChange((_event, session) => {
+sb.auth.onAuthStateChange((event, session) => {
   updateAuthUI(session);
-  if (session && sessionStorage.getItem(AUTOSTART_KEY)) {
+  // 실제 로그인(SIGNED_IN)에서만 자동시작 — 지속 세션의 페이지 로드(INITIAL_SESSION)나 묵은 플래그로 오작동 방지
+  if (event === "SIGNED_IN" && session && sessionStorage.getItem(AUTOSTART_KEY)) {
     sessionStorage.removeItem(AUTOSTART_KEY);
     beginTest(session);
   }
