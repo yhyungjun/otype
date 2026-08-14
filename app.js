@@ -496,7 +496,7 @@ document.addEventListener("click", (e) => {
   if (!action) return;
   e.preventDefault();
   if (action === "start") beginFlow();
-  else if (action === "login-kakao") Auth.signIn("kakao");
+  else if (action === "login-kakao") Auth.signIn("custom:kakao");
   else if (action === "login-google") Auth.signIn("google");
   else if (action === "logout") Auth.signOut();
   else if (action === "prev") { if (state.index > 0) { state.index -= 1; renderQuestion(); } }

@@ -17,9 +17,9 @@ const Auth = {
     sessionStorage.setItem(AUTOSTART_KEY, "1");
     const redirectTo = window.location.href.split("#")[0].split("?")[0];
     const options = { redirectTo };
-    // 카카오는 account_email 동의가 비즈앱 전용이라 기본 요청 스코프(account_email)가 거부됨
-    // → 닉네임만 요청해 이메일 스코프를 제외한다
-    if (provider === "kakao") options.scopes = "profile_nickname";
+    // 카카오는 GoTrue 내장 커넥터가 비즈앱 전용 account_email을 강제 요청 → 거부됨.
+    // Custom OIDC 제공자(custom:kakao)로 우회하고 openid+닉네임만 요청한다.
+    if (provider === "custom:kakao") options.scopes = "openid profile_nickname";
     return sb.auth.signInWithOAuth({ provider, options });
   },
   async signOut() {
