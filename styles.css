@@ -103,16 +103,15 @@ body {
 /* Discover */
 .discover { margin-top: 56px; }
 .discover h2, .faq h2, .scores h2 { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 26px; letter-spacing: -0.02em; }
-/* 메이슨리(컬럼) — 펼쳤을 때 카드 높이가 제각각이어도 빈 공간 없이 자연스럽게 채워짐 */
-.discover-grid { column-count: 3; column-gap: 14px; }
-@media (max-width: 900px) { .discover-grid { column-count: 2; } }
-@media (max-width: 640px) { .discover-grid { column-count: 1; } }
+/* 3열 그리드 — 카드가 가로(행) 순서로 배치. 펼치면 같은 행 카드는 높이를 맞춰 빈 그리드 간격을 없앰 */
+.discover-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; }
+@media (max-width: 900px) { .discover-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .discover-grid { grid-template-columns: 1fr; } }
 
 /* discover-card as <details> accordion */
 .discover-card {
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;
   padding: 20px; box-shadow: var(--shadow-sm);
-  break-inside: avoid; margin-bottom: 14px; /* 컬럼 흐름에서 카드 분할 방지 + 세로 간격 */
 }
 .discover-card summary {
   cursor: pointer; list-style: none; position: relative; padding-right: 28px;
