@@ -80,47 +80,10 @@ function computeScores() {
   return pct;
 }
 
-/* ---------- 레이더 차트 (오각형) ---------- */
-const RADAR_ORDER = ["O", "C", "E", "A", "N"]; // 위에서 시계방향
-const LEVEL_EN = { H: "HIGH", M: "MEDIUM", L: "LOW" };
-
-function radarPoint(cx, cy, radius, i, frac) {
-  const angle = (-90 + i * 72) * (Math.PI / 180);
-  return [cx + radius * frac * Math.cos(angle), cy + radius * frac * Math.sin(angle)];
-}
-
+/* ---------- 레이더 차트 (오각형) — 렌더러는 radar.js의 공용 renderRadar 사용 ---------- */
+// RADAR_ORDER · LEVEL_EN · renderRadar 는 radar.js에서 전역으로 정의된다.
 function drawRadar(pct, levels) {
-  const svg = document.getElementById("radar");
-  const cx = 230, cy = 200, R = 118;
-  const grid = [0.25, 0.5, 0.75, 1];
-  let out = "";
-
-  // 배경 격자 오각형
-  grid.forEach((g) => {
-    const pts = RADAR_ORDER.map((_, i) => radarPoint(cx, cy, R, i, g).map((n) => n.toFixed(1)).join(",")).join(" ");
-    out += `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
-  });
-  // 축선
-  RADAR_ORDER.forEach((_, i) => {
-    const [x, y] = radarPoint(cx, cy, R, i, 1);
-    out += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
-  });
-  // 데이터 폴리곤
-  const dataPts = RADAR_ORDER.map((k, i) => radarPoint(cx, cy, R, i, Math.max(pct[k], 4) / 100).map((n) => n.toFixed(1)).join(",")).join(" ");
-  out += `<polygon points="${dataPts}" fill="rgba(49,130,246,0.30)" stroke="#3182f6" stroke-width="2.5" stroke-linejoin="round"/>`;
-  // 정점 점 + 라벨
-  RADAR_ORDER.forEach((k, i) => {
-    const f = FACTORS[k];
-    const [dx, dy] = radarPoint(cx, cy, R, i, Math.max(pct[k], 4) / 100);
-    out += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="5" fill="${f.color}" stroke="#0f1b34" stroke-width="2"/>`;
-
-    const [lx, ly] = radarPoint(cx, cy, R + 30, i, 1);
-    const anchor = i === 0 ? "middle" : lx > cx + 4 ? "start" : lx < cx - 4 ? "end" : "middle";
-    out += `<text x="${lx.toFixed(1)}" y="${(ly - 2).toFixed(1)}" text-anchor="${anchor}" class="radar-axis-label" fill="${f.color}">${f.english}</text>`;
-    out += `<text x="${lx.toFixed(1)}" y="${(ly + 13).toFixed(1)}" text-anchor="${anchor}" class="radar-axis-level">${LEVEL_EN[levels[k]]}</text>`;
-  });
-
-  svg.innerHTML = out;
+  renderRadar(document.getElementById("radar"), pct, levels);
 }
 
 /* ---------- 표본 비교 바 렌더 ---------- */
@@ -398,8 +361,11 @@ function updateAuthUI(session) {
   el.append(name, out);
 }
 
-// Supabase 저장 (로그인 사용자 insert, 실패해도 결과 화면은 정상 표시)
+// Supabase 저장 (로그인 사용자 insert, 실패해도 결과 화면은 정상 표시).
+// 삽입된 행의 share_id를 받아 공유 링크 생성에 사용한다.
 function saveResult(pct, profile) {
+  state.lastShareId = null;
+  updateShareButton();
   if (!state.nickname || !state.userId) return;
   sb.from("ocean_results")
     .insert({
@@ -413,10 +379,31 @@ function saveResult(pct, profile) {
       scores: pct,
       answers: state.answers,
     })
-    .then(({ error }) => {
-      if (error) console.error("결과 저장 실패:", error.message);
+    .select("share_id")
+    .single()
+    .then(({ data, error }) => {
+      if (error) { console.error("결과 저장 실패:", error.message); return; }
+      state.lastShareId = data?.share_id || null;
+      updateShareButton();
     })
     .catch((e) => console.error("결과 저장 네트워크 오류:", e));
+}
+
+// 공유 버튼은 share_id가 준비되기 전까지 비활성.
+function updateShareButton() {
+  const btn = document.querySelector('[data-action="share"]');
+  if (btn) btn.disabled = !state.lastShareId;
+}
+
+// 결과 요약 카드 공개 링크(share.html?id=…)를 클립보드에 복사. 배포 경로(basePath)는 현재 문서 기준으로 해석.
+function shareResult() {
+  if (!state.lastShareId) { toast("공유 링크를 준비 중이에요"); return; }
+  const url = new URL("share.html", location.href);
+  url.searchParams.set("id", state.lastShareId);
+  navigator.clipboard?.writeText(url.href).then(
+    () => toast("공유 링크를 복사했어요 ✓"),
+    () => toast("복사에 실패했어요")
+  );
 }
 
 function toast(msg) {
@@ -506,6 +493,7 @@ document.addEventListener("click", (e) => {
   else if (action === "prev") { if (state.index > 0) { state.index -= 1; renderQuestion(); } }
   else if (action === "restart" || action === "home") { show("intro"); }
   else if (action === "copy") copyResult();
+  else if (action === "share") shareResult();
   else if (action === "save-image") saveImage(btn);
 });
 
