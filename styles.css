@@ -504,7 +504,7 @@ body {
 }
 
 /* 친구 추가 행 — 입력이 늘어나고 버튼은 고정, 모바일에서 줄바꿈 */
-.friend-add { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 26px; }
+.friend-add { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 12px; }
 .friend-add input {
   flex: 1 1 200px; min-width: 0;
   font-family: inherit; font-size: 1rem; font-weight: 600;
@@ -524,3 +524,15 @@ body {
 }
 .friend-add button:hover { background: var(--primary-dark); }
 .friend-add button:active { transform: scale(0.97); }
+
+/* 입력창 아래 예시 안내 */
+.friend-hint { margin: 0 0 26px; font-size: 0.86rem; color: var(--muted); line-height: 1.55; }
+.friend-hint p { margin: 0 0 6px; }
+.friend-hint strong { color: var(--text); font-weight: 700; }
+.friend-hint ul { margin: 0; padding-left: 18px; list-style: disc; }
+.friend-hint li { margin: 2px 0; }
+.friend-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em; background: var(--primary-soft); color: var(--primary-dark);
+  padding: 1px 6px; border-radius: 6px; word-break: break-all;
+}
