@@ -40,6 +40,7 @@ function renderCard(nickname, profile, scores) {
   card.innerHTML = `
     <header class="sc-cover">
       <span class="sc-kicker">OCEAN 성격 검사</span>
+      <div class="sc-emoji" aria-hidden="true"></div>
       <h2 class="sc-name"></h2>
       <p class="sc-type"></p>
       <p class="sc-role"></p>
@@ -48,6 +49,7 @@ function renderCard(nickname, profile, scores) {
     <blockquote class="sc-summary"></blockquote>`;
 
   const type = profile.type;
+  card.querySelector(".sc-emoji").textContent = type.emoji || "";
   card.querySelector(".sc-name").textContent = `${nickname} 님`;
   card.querySelector(".sc-type").textContent = type.title;
   card.querySelector(".sc-role").textContent = `${type.code} · ${type.role}`;

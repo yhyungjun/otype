@@ -261,6 +261,7 @@ function finish() {
   document.getElementById("r-kicker").textContent = state.nickname
     ? `${state.nickname} 님, 나는 누구인가`
     : "나 는 누 구 인 가";
+  document.getElementById("r-emoji").textContent = type.emoji || "";
   document.getElementById("r-title").textContent = type.title;
   document.getElementById("r-sub").textContent = `${type.code} · ${type.role}`;
   document.getElementById("r-intro").textContent = intro;
