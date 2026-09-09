@@ -33,5 +33,16 @@ as $$
   limit 1;
 $$;
 
--- 3) anon·authenticated 실행 권한 (테이블 직접 접근 RLS는 그대로: 직접 select 불가)
+-- 3) anon·authenticated 실행 권한 (테이블 직접 접근 RLS는 그대로: anon 직접 select 불가)
 grant execute on function public.get_shared_result(uuid) to anon, authenticated;
+
+-- 4) 소유자 읽기(SELECT) 정책 — ⚠️ 필수.
+--    이유①: 프런트의 insert(...).select("share_id")는 PostgREST return=representation(=RETURNING)을
+--           쓰는데, SELECT RLS 정책이 하나도 없으면 삽입 행을 되돌려 읽지 못해 INSERT 전체가
+--           42501로 롤백된다 → 로그인 사용자 결과 저장 자체가 실패(회귀). 소유자 SELECT 정책이 있어야
+--           본인 행을 RETURNING으로 되받아 share_id를 얻는다.
+--    이유②: 스펙(§2)이 가정했던 '소유자만 읽기' RLS를 실제로 구현.
+--    보안: anon은 SELECT 정책 없음 → 직접 select 전면 차단 유지. authenticated도 '자기 행'만.
+create policy own_select_results on public.ocean_results
+  for select to authenticated
+  using (user_id = auth.uid());
