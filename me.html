@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 검사 결과 · 오션(OCEAN) 성격 검사</title>
+  <meta name="description" content="내가 완료한 OCEAN 성격 검사 결과를 모아보고 다시 확인하세요." />
+
+  <!-- 파비콘 / 앱 아이콘 -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#3182f6" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="assets/logo-mark.svg" alt="" width="26" height="26" /> OCEAN
+      </a>
+      <div class="header-right">
+        <nav class="breadcrumb" aria-label="breadcrumb">
+          <span>홈</span> <span class="sep">›</span> <span class="current">내 검사 결과</span>
+        </nav>
+        <div id="auth-status" class="auth-status"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="view active">
+      <h1>내 검사 결과</h1>
+      <p class="lead">로그인한 계정으로 완료한 검사 결과를 모아 볼 수 있어요.</p>
+      <div id="me-root"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© 2026 오션(OCEAN) 성격 검사 · IPIP 공개 문항 기반 · <a href="index.html">홈으로</a> · <a href="dashboard.html">친구 결과 대시보드</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="data/questions.js"></script>
+  <script src="data/archetypes.js"></script>
+  <script src="radar.js"></script>
+  <script src="me.js"></script>
+</body>
+</html>
