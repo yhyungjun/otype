@@ -355,11 +355,15 @@ function updateAuthUI(session) {
   const name = document.createElement("span");
   name.className = "auth-name";
   name.textContent = `${Auth.displayName(session)} 님`;
+  const mine = document.createElement("a");
+  mine.className = "auth-link";
+  mine.href = "me.html";
+  mine.textContent = "내 결과";
   const out = document.createElement("button");
   out.className = "auth-logout";
   out.dataset.action = "logout";
   out.textContent = "로그아웃";
-  el.append(name, out);
+  el.append(name, mine, out);
 }
 
 // Supabase 저장 (로그인 사용자 insert, 실패해도 결과 화면은 정상 표시).
