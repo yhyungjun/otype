@@ -78,6 +78,11 @@ function buildSummaryCard(id, row) {
   kicker.className = "sc-kicker";
   kicker.textContent = "OCEAN 성격 검사";
 
+  const emoji = document.createElement("div");
+  emoji.className = "sc-emoji";
+  emoji.setAttribute("aria-hidden", "true");
+  emoji.textContent = type.emoji || "";
+
   const name = document.createElement("h2");
   name.className = "sc-name";
   name.textContent = `${row.nickname} 님`;
@@ -90,7 +95,7 @@ function buildSummaryCard(id, row) {
   role.className = "sc-role";
   role.textContent = `${type.code} · ${type.role}`;
 
-  cover.append(kicker, name, typeEl, role);
+  cover.append(kicker, emoji, name, typeEl, role);
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("class", "sc-radar");
