@@ -471,6 +471,9 @@ body {
   margin: 18px auto 4px;
 }
 
+/* 시각화 위임 컨테이너 — 내부 .sc-radar/.cmp-radar 가 실제 사이징을 담당한다. */
+.sc-viz, .cmp-viz { width: 100%; }
+
 /* 한 줄 요약 인용 */
 .sc-summary {
   font-size: 0.98rem; line-height: 1.7; font-style: italic; font-weight: 500;

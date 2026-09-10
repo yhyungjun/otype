@@ -34,7 +34,7 @@ function renderMessage(message, withCta) {
 }
 
 // 요약 카드 렌더 — nickname 은 사용자 입력이므로 반드시 textContent 로만 채운다.
-function renderCard(nickname, profile, scores) {
+function renderCard(nickname, profile, scores, t) {
   const card = document.createElement("article");
   card.className = "share-card";
   // 스켈레톤은 innerHTML 로 만들되, 텍스트 필드는 아래에서 textContent 로 채운다.
@@ -46,7 +46,7 @@ function renderCard(nickname, profile, scores) {
       <p class="sc-type"></p>
       <p class="sc-role"></p>
     </header>
-    <svg class="sc-radar" viewBox="0 0 460 420" role="img" aria-label="Big Five 레이더 차트"></svg>
+    <div class="sc-viz"></div>
     <blockquote class="sc-summary"></blockquote>`;
 
   const type = profile.type;
@@ -57,7 +57,7 @@ function renderCard(nickname, profile, scores) {
   card.querySelector(".sc-summary").textContent = `“${profile.summary}”`;
 
   root.replaceChildren(card);
-  renderRadar(card.querySelector(".sc-radar"), scores, profile.levels);
+  t.renderSummaryViz(card.querySelector(".sc-viz"), scores);
 }
 
 async function main() {
@@ -82,7 +82,7 @@ async function main() {
       return;
     }
     const profile = t.buildProfile(scores);
-    renderCard(row.nickname, profile, scores);
+    renderCard(row.nickname, profile, scores, t);
   } catch (e) {
     renderMessage("결과를 찾을 수 없어요", true);
   }

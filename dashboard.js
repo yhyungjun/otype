@@ -66,7 +66,8 @@ function makeRemoveButton(id) {
 
 // 성공 요약 카드. 텍스트는 모두 textContent로 주입(XSS 방지).
 function buildSummaryCard(id, row) {
-  const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
+  const t = getTest(row.test_id || "ocean");
+  const profile = t.buildProfile(row.scores);
   const type = profile.type;
 
   const card = document.createElement("article");
@@ -98,20 +99,17 @@ function buildSummaryCard(id, row) {
 
   cover.append(kicker, emoji, name, typeEl, role);
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("class", "sc-radar");
-  svg.setAttribute("viewBox", "0 0 460 420");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", "Big Five 레이더 차트");
+  const viz = document.createElement("div");
+  viz.className = "sc-viz";
 
   const summary = document.createElement("blockquote");
   summary.className = "sc-summary";
   summary.textContent = `“${profile.summary}”`;
 
-  card.append(cover, svg, summary, makeRemoveButton(id));
+  card.append(cover, viz, summary, makeRemoveButton(id));
 
-  // SVG가 DOM에 붙은 뒤 레이더 렌더.
-  renderRadar(svg, row.scores, profile.levels);
+  // viz 컨테이너가 DOM에 붙은 뒤 모듈에 시각화 위임.
+  t.renderSummaryViz(viz, row.scores);
   return card;
 }
 
