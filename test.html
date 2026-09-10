@@ -95,20 +95,20 @@
     <!-- ===== 랜딩 ===== -->
     <section id="view-intro" class="view active">
       <div class="hero">
-        <h1>오션 성격 검사</h1>
-        <p class="lead">
+        <h1 id="intro-title">오션 성격 검사</h1>
+        <p class="lead" id="intro-lead">
           오션(OCEAN) 성격 검사로 나를 알아보세요.<br />
           5가지 핵심 특성을 <strong>50문항</strong>으로 정밀하게 진단합니다.
         </p>
 
         <div class="meta-row">
-          <div class="meta-item"><strong>50</strong><span>문항</span></div>
-          <div class="meta-item"><strong>10분</strong><span>소요</span></div>
+          <div class="meta-item"><strong id="stat-count">50</strong><span>문항</span></div>
+          <div class="meta-item"><strong id="stat-duration">10분</strong><span>소요</span></div>
         </div>
 
         <div class="sample-card">
           <span class="sample-label">예시 문항</span>
-          <p class="sample-q">“나는 파티에서 분위기를 이끄는 사람이다.”</p>
+          <p class="sample-q" id="intro-sample">“나는 파티에서 분위기를 이끄는 사람이다.”</p>
           <div class="sample-scale">
             <span>전혀 아니다</span>
             <div class="dots"><i></i><i></i><i class="on"></i><i></i><i></i></div>
@@ -116,12 +116,12 @@
           </div>
         </div>
 
-        <button class="btn btn-primary btn-lg" data-action="start">
+        <button class="btn btn-primary btn-lg" id="intro-start" data-action="start">
           오션 성격 검사 응시하기
         </button>
       </div>
 
-      <section class="discover">
+      <section class="discover" id="intro-discover">
         <h2>검사 후 무엇을 알 수 있나요?</h2>
         <div class="discover-grid">
           <details class="discover-card">
@@ -151,11 +151,13 @@
         </div>
       </section>
 
-      <section class="faq">
+      <section class="faq" id="intro-faq">
         <h2>자주 묻는 질문</h2>
-        <details><summary>오션(OCEAN) 성격 검사가 무엇인가요?</summary><p>개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.</p></details>
-        <details><summary>MBTI와 무엇이 다른가요?</summary><p>MBTI는 사람을 유형으로 나누지만, 오션은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.</p></details>
-        <details><summary>결과는 얼마나 정확한가요?</summary><p>본 검사는 공개된 IPIP 문항을 기반으로 한 참고용 진단입니다. 솔직하게 답할수록 자기 이해에 도움이 되는 결과를 얻습니다.</p></details>
+        <div id="faq-list">
+          <details><summary>오션(OCEAN) 성격 검사가 무엇인가요?</summary><p>개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.</p></details>
+          <details><summary>MBTI와 무엇이 다른가요?</summary><p>MBTI는 사람을 유형으로 나누지만, 오션은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.</p></details>
+          <details><summary>결과는 얼마나 정확한가요?</summary><p>본 검사는 공개된 IPIP 문항을 기반으로 한 참고용 진단입니다. 솔직하게 답할수록 자기 이해에 도움이 되는 결과를 얻습니다.</p></details>
+        </div>
       </section>
     </section>
 

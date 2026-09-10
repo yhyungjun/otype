@@ -348,11 +348,28 @@ function _renderResult(mountEl, { scores, profile, nickname }) {
 const OCEAN_MODULE = {
   meta: {
     id: "ocean",
-    name: "오션(OCEAN) 성격 검사",
+    name: "오션 성격 검사",
     tagline: "나는 누구인가 — Big Five 기반 성격 프로필",
     icon: "🌊",
     scaleSize: 5,
     scaleLabels: ["전혀 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"],
+    introLead: "오션(OCEAN) 성격 검사로 나를 알아보세요. 5가지 핵심 특성을 50문항으로 정밀하게 진단합니다.",
+    durationMin: 10,
+    sampleQuestion: "나는 파티에서 분위기를 이끄는 사람이다.",
+    faq: [
+      {
+        q: "오션(OCEAN) 성격 검사가 무엇인가요?",
+        a: "개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.",
+      },
+      {
+        q: "MBTI와 무엇이 다른가요?",
+        a: "MBTI는 사람을 유형으로 나누지만, 오션은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.",
+      },
+      {
+        q: "결과는 얼마나 정확한가요?",
+        a: "본 검사는 공개된 IPIP 문항을 기반으로 한 참고용 진단입니다. 솔직하게 답할수록 자기 이해에 도움이 되는 결과를 얻습니다.",
+      },
+    ],
   },
   questions: QUESTIONS,
   score(answers) {

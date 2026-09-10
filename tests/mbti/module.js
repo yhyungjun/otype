@@ -282,6 +282,9 @@ const MBTI_MODULE = {
     icon: "🧭",
     scaleSize: 5,
     scaleLabels: MBTI_SCALE.map((s) => s.label),
+    introLead: "네 갈래(E/I·S/N·T/F·J/P)로 나를 읽는 16가지 성격유형 검사입니다.",
+    durationMin: 5,
+    sampleQuestion: "처음 보는 사람들과도 쉽게 대화를 시작한다.",
   },
   questions: MBTI_QUESTIONS,
   score(answers) {
