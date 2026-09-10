@@ -101,8 +101,11 @@ function resultCard(row) {
   summary.className = "sc-summary";
   summary.textContent = `“${profile.summary}”`;
 
+  const actions = document.createElement("div");
+  actions.className = "sc-actions";
+
   const copy = document.createElement("button");
-  copy.className = "sc-remove";
+  copy.className = "sc-btn";
   copy.textContent = "공유 링크 복사";
   copy.addEventListener("click", () => {
     navigator.clipboard?.writeText(shareUrl(row.share_id)).then(
@@ -111,9 +114,40 @@ function resultCard(row) {
     );
   });
 
-  card.append(cover, svg, summary, copy);
+  const img = document.createElement("button");
+  img.className = "sc-btn";
+  img.textContent = "이미지 저장";
+  img.addEventListener("click", () => saveCardImage(card, row, img));
+
+  actions.append(copy, img);
+
+  card.append(cover, svg, summary, actions);
   renderRadar(svg, row.scores, profile.levels);
   return card;
+}
+
+async function saveCardImage(cardEl, row, btn) {
+  if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }
+  const type = getTest(row.test_id || "ocean").buildProfile(row.scores).type;
+  const original = btn?.textContent;
+  if (btn) { btn.disabled = true; btn.textContent = "생성 중…"; }
+  try {
+    const canvas = await html2canvas(cardEl, {
+      backgroundColor: "#0f1b34", scale: 2, useCORS: true, logging: false,
+      ignoreElements: (el) => el.classList?.contains("sc-actions"),
+    });
+    const d = new Date(row.created_at);
+    const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+    const name = `${row.test_id || "ocean"}_${type.title.replace(/^The\s+/, "").replace(/\s+/g, "_")}_${ymd}.png`;
+    canvas.toBlob((blob) => {
+      if (!blob) { toast("이미지 생성에 실패했어요"); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+      toast("이미지를 저장했어요 ✓");
+    }, "image/png");
+  } catch (e) { console.error(e); toast("이미지 생성에 실패했어요"); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = original; } }
 }
 
 function messageCard(text) {
@@ -149,10 +183,56 @@ async function renderResults(session) {
     root.replaceChildren(empty);
     return;
   }
-  const grid = document.createElement("div");
-  grid.className = "share-grid";
-  data.forEach((row) => grid.appendChild(resultCard(row)));
-  root.replaceChildren(grid);
+  // 테스트별 그룹화 — 첫 등장 순서 유지(데이터는 이미 created_at desc)
+  const groups = [];
+  const byId = new Map();
+  data.forEach((row) => {
+    const id = row.test_id || "ocean";
+    let group = byId.get(id);
+    if (!group) {
+      const meta = getTest(id)?.meta;
+      group = { id, name: meta?.name || id, icon: meta?.icon || "", rows: [] };
+      byId.set(id, group);
+      groups.push(group);
+    }
+    group.rows.push(row);
+  });
+
+  let activeFilter = "all";
+
+  function paint() {
+    const wrap = document.createElement("div");
+
+    const tabs = document.createElement("div");
+    tabs.className = "me-tabs";
+    const tabDefs = [{ id: "all", label: "전체" }, ...groups.map((g) => ({ id: g.id, label: g.name }))];
+    tabDefs.forEach((def) => {
+      const tab = document.createElement("button");
+      tab.className = "me-tab" + (def.id === activeFilter ? " active" : "");
+      tab.textContent = def.label;
+      tab.addEventListener("click", () => { activeFilter = def.id; paint(); });
+      tabs.appendChild(tab);
+    });
+    wrap.appendChild(tabs);
+
+    groups
+      .filter((g) => activeFilter === "all" || g.id === activeFilter)
+      .forEach((g) => {
+        const head = document.createElement("h2");
+        head.className = "me-group-head";
+        head.textContent = `${g.icon} ${g.name} · ${g.rows.length}`;
+        wrap.appendChild(head);
+
+        const grid = document.createElement("div");
+        grid.className = "share-grid";
+        g.rows.forEach((row) => grid.appendChild(resultCard(row)));
+        wrap.appendChild(grid);
+      });
+
+    root.replaceChildren(wrap);
+  }
+
+  paint();
 }
 
 async function main() {

@@ -551,3 +551,13 @@ body {
 .tc-icon { font-size: 2.4rem; line-height: 1; }
 .tc-name { font-size: 1.15rem; margin: 12px 0 6px; color: var(--text); }
 .tc-tag { font-size: .9rem; color: var(--muted); line-height: 1.5; }
+
+/* ===== 마이페이지 P2: 탭·그룹·카드 액션 ===== */
+.me-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px; }
+.me-tab { font-family: inherit; font-weight: 700; font-size: .9rem; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.me-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.me-group-head { font-weight: 800; font-size: 1.05rem; color: var(--text); margin: 22px 0 12px; }
+.sc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.sc-btn { font-family: inherit; font-weight: 600; font-size: .82rem; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--r-line); background: transparent; color: var(--r-text); cursor: pointer; }
+.sc-btn:hover { border-color: var(--r-accent); color: #fff; }
+.sc-btn:disabled { opacity: .6; cursor: default; }
