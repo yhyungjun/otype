@@ -252,6 +252,42 @@ function _etRenderResult(mountEl, { scores, profile }) {
   mountEl.appendChild(foot);
 }
 
+/* ---------- 디스커버 미리보기 ---------- */
+// "검사 후 무엇을 알 수 있나요?" 카드. 공용 러너가 #discover-grid에 렌더한다.
+const ET_DISCOVER_CARDS = [
+  { emoji: "⚡", title: "기질 성향", desc: "테토(주도)–에겐(수용) 성향을 읽어요.",
+    preview: (el) => { const p = document.createElement("p"); p.textContent = "상황을 주도하는 편인지, 부드럽게 수용하는 편인지 백분율로 알려드려요."; el.appendChild(p); } },
+  { emoji: "🎭", title: "4가지 유형", desc: "기질 × 에너지 방향으로 도출되는 4유형.",
+    preview: (el) => { const p = document.createElement("p"); p.textContent = "🔥 불꽃 리더 · 🎯 조용한 승부사 · ☀️ 따뜻한 무드메이커 · 🌙 섬세한 힐러 중 하나."; el.appendChild(p); } },
+  { emoji: "📊", title: "스펙트럼 그래프", desc: "두 축에서 어느 쪽에 가까운지 막대로.",
+    preview: (el) => _renderSpectrumBars(el, { teto: 72, extro: 40 }, true) },
+  { emoji: "💘", title: "끌리는 상대", desc: "나와 통하는 기질 유형.",
+    preview: (el) => { const p = document.createElement("p"); p.textContent = "에겐과 테토는 서로 다른 결에 끌려요. 내 유형과 잘 맞는 상대를 짚어드려요."; el.appendChild(p); } },
+  { emoji: "✨", title: "매력 포인트", desc: "내 기질의 강점과 매력.",
+    preview: (el) => { const p = document.createElement("p"); p.textContent = "내 기질이 관계와 일에서 어떤 매력으로 드러나는지 알려드려요."; el.appendChild(p); } },
+];
+
+function _etRenderDiscoverPreviews(grid) {
+  ET_DISCOVER_CARDS.forEach((c) => {
+    const details = document.createElement("details");
+    details.className = "discover-card";
+    const summary = document.createElement("summary");
+    const icWrap = document.createElement("span");
+    icWrap.className = "ic-wrap";
+    icWrap.textContent = c.emoji;
+    const h3 = document.createElement("h3");
+    h3.textContent = c.title;
+    const p = document.createElement("p");
+    p.textContent = c.desc;
+    summary.append(icWrap, h3, p);
+    const preview = document.createElement("div");
+    preview.className = "dc-preview";
+    c.preview(preview);
+    details.append(summary, preview);
+    grid.appendChild(details);
+  });
+}
+
 /* ---------- 모듈 인터페이스 ---------- */
 const ET_MODULE = {
   meta: {
@@ -281,5 +317,8 @@ const ET_MODULE = {
   },
   renderCompareViz(container, datasets) {
     _renderCompareSpectrum(container, datasets);
+  },
+  renderDiscoverPreviews(grid) {
+    _etRenderDiscoverPreviews(grid);
   },
 };
