@@ -74,10 +74,9 @@ function runTest(test) {
       btn.className = "scale-btn" + (state.answers[i] === value ? " selected" : "");
       btn.setAttribute("role", "radio");
       btn.setAttribute("aria-checked", state.answers[i] === value);
-      // 양 끝점에만 라벨을 노출(모듈은 scaleLabels로 [최소, 최대] 만 제공).
-      const label = value === 1 ? labels[0] : value === size ? labels[labels.length - 1] : "";
+      // 값별 라벨(모듈이 값 개수만큼 제공). 없으면 숫자로 폴백 → 어떤 테스트든 일반 동작.
       const labelText = document.createElement("span");
-      labelText.textContent = label || String(value);
+      labelText.textContent = labels[value - 1] || String(value);
       const marker = document.createElement("span");
       marker.className = "marker";
       btn.appendChild(marker);

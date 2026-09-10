@@ -352,7 +352,7 @@ const OCEAN_MODULE = {
     tagline: "나는 누구인가 — Big Five 기반 성격 프로필",
     icon: "🌊",
     scaleSize: 5,
-    scaleLabels: ["전혀 아니다", "매우 그렇다"],
+    scaleLabels: ["전혀 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"],
   },
   questions: QUESTIONS,
   score(answers) {
