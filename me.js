@@ -5,6 +5,9 @@
 
 const root = document.getElementById("me-root");
 
+const compareSel = new Map(); // rowId → row (최대 2)
+const CMP_COLORS = ["#4b8ffc", "#f5a623"];
+
 function toast(msg) {
   let el = document.querySelector(".toast");
   if (!el) {
@@ -119,7 +122,13 @@ function resultCard(row) {
   img.textContent = "이미지 저장";
   img.addEventListener("click", () => saveCardImage(card, row, img));
 
-  actions.append(copy, img);
+  const cmp = document.createElement("button");
+  cmp.className = "sc-btn sc-compare";
+  cmp.textContent = "비교";
+  cmp.setAttribute("aria-pressed", "false");
+  cmp.addEventListener("click", () => toggleCompare(row, card, cmp));
+
+  actions.append(copy, img, cmp);
 
   card.append(cover, svg, summary, actions);
   renderRadar(svg, row.scores, profile.levels);
@@ -148,6 +157,139 @@ async function saveCardImage(cardEl, row, btn) {
     }, "image/png");
   } catch (e) { console.error(e); toast("이미지 생성에 실패했어요"); }
   finally { if (btn) { btn.disabled = false; btn.textContent = original; } }
+}
+
+// ===== 두 결과 비교 =====
+function toggleCompare(row, cardEl, btn) {
+  const key = row.id;
+  if (compareSel.has(key)) {
+    compareSel.delete(key);
+    cardEl.classList.remove("is-selected");
+    btn.setAttribute("aria-pressed", "false");
+  } else {
+    if (compareSel.size >= 2) { toast("두 개까지 선택할 수 있어요"); return; }
+    compareSel.set(key, row);
+    cardEl.classList.add("is-selected");
+    btn.setAttribute("aria-pressed", "true");
+  }
+  renderCompareBar();
+}
+
+function renderCompareBar() {
+  let bar = document.querySelector(".compare-bar");
+  if (compareSel.size < 2) { bar?.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "compare-bar";
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = "";
+  const label = document.createElement("span");
+  label.textContent = "2개 선택됨";
+  const go = document.createElement("button");
+  go.className = "btn btn-primary";
+  go.textContent = "비교하기";
+  go.addEventListener("click", openCompare);
+  const clear = document.createElement("button");
+  clear.className = "btn btn-ghost";
+  clear.textContent = "선택 해제";
+  clear.addEventListener("click", clearCompare);
+  bar.append(label, go, clear);
+}
+
+function clearCompare() {
+  compareSel.clear();
+  document.querySelectorAll(".share-card.is-selected").forEach((c) => c.classList.remove("is-selected"));
+  document.querySelectorAll(".sc-compare").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  renderCompareBar();
+}
+
+function openCompare() {
+  const rows = [...compareSel.values()];
+  if (rows.length !== 2) return;
+  if ((rows[0].test_id || "ocean") !== (rows[1].test_id || "ocean")) {
+    toast("같은 테스트끼리만 비교할 수 있어요");
+    return;
+  }
+  const items = rows.map((row, i) => {
+    const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
+    return { row, profile, color: CMP_COLORS[i] };
+  });
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "compare-backdrop";
+  const modal = document.createElement("div");
+  modal.className = "compare-modal";
+
+  const heads = document.createElement("div");
+  heads.className = "cmp-heads";
+  items.forEach((it) => {
+    const h = document.createElement("div");
+    h.className = "cmp-head";
+    const dot = document.createElement("span");
+    dot.className = "cmp-dot";
+    dot.style.background = it.color;
+    const t = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "cmp-title";
+    title.textContent = `${it.profile.type.emoji || ""} ${it.profile.type.title}`;
+    const date = document.createElement("div");
+    date.className = "cmp-date";
+    date.textContent = fmtDate(it.row.created_at);
+    t.append(title, date);
+    h.append(dot, t);
+    heads.appendChild(h);
+  });
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "cmp-radar");
+  svg.setAttribute("viewBox", "0 0 460 420");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "비교 레이더 차트");
+
+  const legend = document.createElement("div");
+  legend.className = "cmp-legend";
+  items.forEach((it) => {
+    const l = document.createElement("span");
+    l.className = "cmp-leg";
+    const d = document.createElement("i");
+    d.style.background = it.color;
+    l.append(d, document.createTextNode(fmtDate(it.row.created_at)));
+    legend.appendChild(l);
+  });
+
+  const acts = document.createElement("div");
+  acts.className = "sc-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "sc-btn";
+  saveBtn.textContent = "이미지 저장";
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "sc-btn";
+  closeBtn.textContent = "닫기";
+  closeBtn.addEventListener("click", () => backdrop.remove());
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
+  acts.append(saveBtn, closeBtn);
+
+  modal.append(heads, svg, legend, acts);
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  renderCompareRadar(svg, items.map((it) => ({ pct: it.row.scores, color: it.color })));
+
+  saveBtn.addEventListener("click", async () => {
+    if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }
+    const canvas = await html2canvas(modal, {
+      backgroundColor: "#141a2e", scale: 2, useCORS: true,
+      ignoreElements: (el) => el.classList?.contains("sc-actions"),
+    });
+    canvas.toBlob((blob) => {
+      if (!blob) { toast("이미지 생성에 실패했어요"); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "compare.png"; a.click();
+      URL.revokeObjectURL(url);
+      toast("이미지를 저장했어요 ✓");
+    }, "image/png");
+  });
 }
 
 function messageCard(text) {
