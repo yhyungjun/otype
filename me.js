@@ -5,6 +5,9 @@
 
 const root = document.getElementById("me-root");
 
+const compareSel = new Map(); // rowId → row (최대 2)
+const CMP_COLORS = ["#4b8ffc", "#f5a623"];
+
 function toast(msg) {
   let el = document.querySelector(".toast");
   if (!el) {
@@ -101,8 +104,11 @@ function resultCard(row) {
   summary.className = "sc-summary";
   summary.textContent = `“${profile.summary}”`;
 
+  const actions = document.createElement("div");
+  actions.className = "sc-actions";
+
   const copy = document.createElement("button");
-  copy.className = "sc-remove";
+  copy.className = "sc-btn";
   copy.textContent = "공유 링크 복사";
   copy.addEventListener("click", () => {
     navigator.clipboard?.writeText(shareUrl(row.share_id)).then(
@@ -111,9 +117,181 @@ function resultCard(row) {
     );
   });
 
-  card.append(cover, svg, summary, copy);
+  const img = document.createElement("button");
+  img.className = "sc-btn";
+  img.textContent = "이미지 저장";
+  img.addEventListener("click", () => saveCardImage(card, row, img));
+
+  const cmp = document.createElement("button");
+  cmp.className = "sc-btn sc-compare";
+  cmp.textContent = "비교";
+  cmp.setAttribute("aria-pressed", "false");
+  cmp.addEventListener("click", () => toggleCompare(row, card, cmp));
+  // 필터 탭 재렌더 후에도 비교 선택 상태를 복원(재렌더 desync 방지)
+  if (compareSel.has(row.id)) { card.classList.add("is-selected"); cmp.setAttribute("aria-pressed", "true"); }
+
+  actions.append(copy, img, cmp);
+
+  card.append(cover, svg, summary, actions);
   renderRadar(svg, row.scores, profile.levels);
   return card;
+}
+
+async function saveCardImage(cardEl, row, btn) {
+  if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }
+  const type = getTest(row.test_id || "ocean").buildProfile(row.scores).type;
+  const original = btn?.textContent;
+  if (btn) { btn.disabled = true; btn.textContent = "생성 중…"; }
+  try {
+    const canvas = await html2canvas(cardEl, {
+      backgroundColor: "#0f1b34", scale: 2, useCORS: true, logging: false,
+      ignoreElements: (el) => el.classList?.contains("sc-actions"),
+    });
+    const d = new Date(row.created_at);
+    const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+    const name = `${row.test_id || "ocean"}_${type.title.replace(/^The\s+/, "").replace(/\s+/g, "_")}_${ymd}.png`;
+    canvas.toBlob((blob) => {
+      if (!blob) { toast("이미지 생성에 실패했어요"); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+      toast("이미지를 저장했어요 ✓");
+    }, "image/png");
+  } catch (e) { console.error(e); toast("이미지 생성에 실패했어요"); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = original; } }
+}
+
+// ===== 두 결과 비교 =====
+function toggleCompare(row, cardEl, btn) {
+  const key = row.id;
+  if (compareSel.has(key)) {
+    compareSel.delete(key);
+    cardEl.classList.remove("is-selected");
+    btn.setAttribute("aria-pressed", "false");
+  } else {
+    if (compareSel.size >= 2) { toast("두 개까지 선택할 수 있어요"); return; }
+    compareSel.set(key, row);
+    cardEl.classList.add("is-selected");
+    btn.setAttribute("aria-pressed", "true");
+  }
+  renderCompareBar();
+}
+
+function renderCompareBar() {
+  let bar = document.querySelector(".compare-bar");
+  if (compareSel.size < 2) { bar?.remove(); return; }
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.className = "compare-bar";
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = "";
+  const label = document.createElement("span");
+  label.textContent = "2개 선택됨";
+  const go = document.createElement("button");
+  go.className = "btn btn-primary";
+  go.textContent = "비교하기";
+  go.addEventListener("click", openCompare);
+  const clear = document.createElement("button");
+  clear.className = "btn btn-ghost";
+  clear.textContent = "선택 해제";
+  clear.addEventListener("click", clearCompare);
+  bar.append(label, go, clear);
+}
+
+function clearCompare() {
+  compareSel.clear();
+  document.querySelectorAll(".share-card.is-selected").forEach((c) => c.classList.remove("is-selected"));
+  document.querySelectorAll(".sc-compare").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  renderCompareBar();
+}
+
+function openCompare() {
+  const rows = [...compareSel.values()];
+  if (rows.length !== 2) return;
+  if ((rows[0].test_id || "ocean") !== (rows[1].test_id || "ocean")) {
+    toast("같은 테스트끼리만 비교할 수 있어요");
+    return;
+  }
+  const items = rows.map((row, i) => {
+    const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
+    return { row, profile, color: CMP_COLORS[i] };
+  });
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "compare-backdrop";
+  const modal = document.createElement("div");
+  modal.className = "compare-modal";
+
+  const heads = document.createElement("div");
+  heads.className = "cmp-heads";
+  items.forEach((it) => {
+    const h = document.createElement("div");
+    h.className = "cmp-head";
+    const dot = document.createElement("span");
+    dot.className = "cmp-dot";
+    dot.style.background = it.color;
+    const t = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "cmp-title";
+    title.textContent = `${it.profile.type.emoji || ""} ${it.profile.type.title}`;
+    const date = document.createElement("div");
+    date.className = "cmp-date";
+    date.textContent = fmtDate(it.row.created_at);
+    t.append(title, date);
+    h.append(dot, t);
+    heads.appendChild(h);
+  });
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "cmp-radar");
+  svg.setAttribute("viewBox", "0 0 460 420");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "비교 레이더 차트");
+
+  const legend = document.createElement("div");
+  legend.className = "cmp-legend";
+  items.forEach((it) => {
+    const l = document.createElement("span");
+    l.className = "cmp-leg";
+    const d = document.createElement("i");
+    d.style.background = it.color;
+    l.append(d, document.createTextNode(fmtDate(it.row.created_at)));
+    legend.appendChild(l);
+  });
+
+  const acts = document.createElement("div");
+  acts.className = "sc-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "sc-btn";
+  saveBtn.textContent = "이미지 저장";
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "sc-btn";
+  closeBtn.textContent = "닫기";
+  closeBtn.addEventListener("click", () => backdrop.remove());
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
+  acts.append(saveBtn, closeBtn);
+
+  modal.append(heads, svg, legend, acts);
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  renderCompareRadar(svg, items.map((it) => ({ pct: it.row.scores, color: it.color })));
+
+  saveBtn.addEventListener("click", async () => {
+    if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }
+    const canvas = await html2canvas(modal, {
+      backgroundColor: "#0f1b34", scale: 2, useCORS: true,
+      ignoreElements: (el) => el.classList?.contains("sc-actions"),
+    });
+    canvas.toBlob((blob) => {
+      if (!blob) { toast("이미지 생성에 실패했어요"); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "compare.png"; a.click();
+      URL.revokeObjectURL(url);
+      toast("이미지를 저장했어요 ✓");
+    }, "image/png");
+  });
 }
 
 function messageCard(text) {
@@ -149,10 +327,56 @@ async function renderResults(session) {
     root.replaceChildren(empty);
     return;
   }
-  const grid = document.createElement("div");
-  grid.className = "share-grid";
-  data.forEach((row) => grid.appendChild(resultCard(row)));
-  root.replaceChildren(grid);
+  // 테스트별 그룹화 — 첫 등장 순서 유지(데이터는 이미 created_at desc)
+  const groups = [];
+  const byId = new Map();
+  data.forEach((row) => {
+    const id = row.test_id || "ocean";
+    let group = byId.get(id);
+    if (!group) {
+      const meta = getTest(id)?.meta;
+      group = { id, name: meta?.name || id, icon: meta?.icon || "", rows: [] };
+      byId.set(id, group);
+      groups.push(group);
+    }
+    group.rows.push(row);
+  });
+
+  let activeFilter = "all";
+
+  function paint() {
+    const wrap = document.createElement("div");
+
+    const tabs = document.createElement("div");
+    tabs.className = "me-tabs";
+    const tabDefs = [{ id: "all", label: "전체" }, ...groups.map((g) => ({ id: g.id, label: g.name }))];
+    tabDefs.forEach((def) => {
+      const tab = document.createElement("button");
+      tab.className = "me-tab" + (def.id === activeFilter ? " active" : "");
+      tab.textContent = def.label;
+      tab.addEventListener("click", () => { activeFilter = def.id; paint(); });
+      tabs.appendChild(tab);
+    });
+    wrap.appendChild(tabs);
+
+    groups
+      .filter((g) => activeFilter === "all" || g.id === activeFilter)
+      .forEach((g) => {
+        const head = document.createElement("h2");
+        head.className = "me-group-head";
+        head.textContent = `${g.icon} ${g.name} · ${g.rows.length}`;
+        wrap.appendChild(head);
+
+        const grid = document.createElement("div");
+        grid.className = "share-grid";
+        g.rows.forEach((row) => grid.appendChild(resultCard(row)));
+        wrap.appendChild(grid);
+      });
+
+    root.replaceChildren(wrap);
+  }
+
+  paint();
 }
 
 async function main() {

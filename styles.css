@@ -551,3 +551,29 @@ body {
 .tc-icon { font-size: 2.4rem; line-height: 1; }
 .tc-name { font-size: 1.15rem; margin: 12px 0 6px; color: var(--text); }
 .tc-tag { font-size: .9rem; color: var(--muted); line-height: 1.5; }
+
+/* ===== 마이페이지 P2: 탭·그룹·카드 액션 ===== */
+.me-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px; }
+.me-tab { font-family: inherit; font-weight: 700; font-size: .9rem; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.me-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.me-group-head { font-weight: 800; font-size: 1.05rem; color: var(--text); margin: 22px 0 12px; }
+.sc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.sc-btn { font-family: inherit; font-weight: 600; font-size: .82rem; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--r-line); background: transparent; color: var(--r-text); cursor: pointer; }
+.sc-btn:hover { border-color: var(--r-accent); color: #fff; }
+.sc-btn:disabled { opacity: .6; cursor: default; }
+
+/* ===== 마이페이지 P2: 비교 선택·바·모달·범례 ===== */
+.share-card.is-selected { outline: 2px solid var(--primary); outline-offset: 2px; }
+.sc-compare[aria-pressed="true"] { background: var(--r-accent); color: #fff; border-color: var(--r-accent); }
+.compare-bar { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 999px; padding: 10px 16px; z-index: 40; }
+.compare-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.compare-modal { background: linear-gradient(160deg, #0f1b34, #14264a); color: #eaf1fb; border-radius: 20px; padding: 24px; width: 100%; max-width: 440px; }
+.cmp-heads { display: flex; justify-content: space-between; gap: 12px; }
+.cmp-head { display: flex; gap: 8px; align-items: flex-start; }
+.cmp-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; flex: 0 0 auto; }
+.cmp-title { font-weight: 800; }
+.cmp-date { font-size: .8rem; color: #9fb2ce; }
+.cmp-radar { width: 100%; max-width: 340px; height: auto; display: block; margin: 8px auto; }
+.cmp-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: .85rem; color: #cfe0f5; }
+.cmp-leg { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-leg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
