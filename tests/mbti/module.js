@@ -277,16 +277,16 @@ function _mbtiRenderResult(mountEl, { scores, profile }) {
 const MBTI_MODULE = {
   meta: {
     id: "mbti",
-    name: "MBTI 성격유형검사",
+    name: "MBTI 유형 검사",
     tagline: "네 갈래(E/I·S/N·T/F·J/P)로 읽는 16가지 유형",
     icon: "🧭",
     scaleSize: 5,
     scaleLabels: MBTI_SCALE.map((s) => s.label),
-    introLead: "외향·감각·사고·판단 네 갈래(E/I·S/N·T/F·J/P)로 나의 성향을 읽어 16가지 유형 중 하나로 알려주는 MBTI 성격유형검사입니다. 32문항으로 간단하게 진단해요.",
+    introLead: "외향·감각·사고·판단 네 갈래(E/I·S/N·T/F·J/P)로 나의 성향을 읽어 16가지 유형 중 하나로 알려주는 MBTI 유형 검사입니다. 32문항으로 간단하게 진단해요.",
     durationMin: 5,
     sampleQuestion: "처음 보는 사람들과도 쉽게 대화를 시작한다.",
     faq: [
-      { q: "MBTI 성격유형검사가 무엇인가요?", a: "외향/내향(E/I), 감각/직관(S/N), 사고/감정(T/F), 판단/인식(J/P) 네 지표로 성향을 나눠 16가지 유형 중 하나로 알려주는 검사입니다." },
+      { q: "MBTI 유형 검사가 무엇인가요?", a: "외향/내향(E/I), 감각/직관(S/N), 사고/감정(T/F), 판단/인식(J/P) 네 지표로 성향을 나눠 16가지 유형 중 하나로 알려주는 검사입니다." },
       { q: "공식 MBTI® 검사인가요?", a: "아니요. MBTI가 대중화한 4지표·16유형 방식을 참고해 자체 제작한 문항으로 만든 검사이며, 공식 MBTI® 검사와는 별개입니다." },
       { q: "결과는 어떻게 나오나요?", a: "네 지표별 성향을 이분 그래프로 보여주고, 4글자 유형 코드와 별명·설명·강점·추천 직무를 함께 제공합니다." },
     ],
