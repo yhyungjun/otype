@@ -254,8 +254,9 @@ function runTest(test) {
         },
       });
 
-      const title = state.lastResult?.profile?.type?.title || "BigFive";
-      const fileName = `BigFive_${title.replace(/^The\s+/, "").replace(/\s+/g, "_")}.png`;
+      const title = state.lastResult?.profile?.type?.title || test.meta.name;
+      const prefix = test.meta.id;   // 테스트별 파일명(러너를 테스트 무관하게)
+      const fileName = `${prefix}_${title.replace(/^The\s+/, "").replace(/\s+/g, "_")}.png`;
       canvas.toBlob((blob) => {
         if (!blob) { toast("이미지 생성에 실패했어요"); return; }
         const url = URL.createObjectURL(blob);
