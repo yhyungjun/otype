@@ -278,7 +278,7 @@ function openCompare() {
   saveBtn.addEventListener("click", async () => {
     if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }
     const canvas = await html2canvas(modal, {
-      backgroundColor: "#141a2e", scale: 2, useCORS: true,
+      backgroundColor: "#0f1b34", scale: 2, useCORS: true,
       ignoreElements: (el) => el.classList?.contains("sc-actions"),
     });
     canvas.toBlob((blob) => {
