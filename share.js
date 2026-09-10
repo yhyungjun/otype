@@ -1,6 +1,7 @@
 // 공유 뷰 — 공개(비로그인) 요약 카드 렌더러.
 // share.html?id=<share_id> 로 진입 → get_shared_result RPC 조회 → 요약 카드 렌더.
-// 전역 sb(auth.js)·FACTORS(questions.js)·buildProfile(archetypes.js)·renderRadar(radar.js) 에 의존한다.
+// 전역 sb(auth.js)·getTest(registry.js)·renderRadar(radar.js) 에 의존한다.
+// 프로필은 row.test_id 로 테스트 모듈을 찾아 t.buildProfile(scores) 로 계산한다.
 
 const root = document.getElementById("share-root");
 
@@ -75,7 +76,12 @@ async function main() {
     }
 
     const scores = row.scores;
-    const profile = buildProfile(FACTORS, scores);
+    const t = getTest(row.test_id) || getTest("ocean");
+    if (!t) {
+      renderMessage("결과를 찾을 수 없어요", true);
+      return;
+    }
+    const profile = t.buildProfile(scores);
     renderCard(row.nickname, profile, scores);
   } catch (e) {
     renderMessage("결과를 찾을 수 없어요", true);

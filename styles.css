@@ -543,3 +543,11 @@ body {
   font-size: 0.85em; background: var(--primary-soft); color: var(--primary-dark);
   padding: 1px 6px; border-radius: 6px; word-break: break-all;
 }
+
+/* ===== 허브: 테스트 목록 카드 ===== */
+.test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; margin-top: 24px; }
+.test-card { display: block; text-decoration: none; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm); transition: transform .12s ease, box-shadow .2s; }
+.test-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+.tc-icon { font-size: 2.4rem; line-height: 1; }
+.tc-name { font-size: 1.15rem; margin: 12px 0 6px; color: var(--text); }
+.tc-tag { font-size: .9rem; color: var(--muted); line-height: 1.5; }
