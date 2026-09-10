@@ -123,9 +123,52 @@ function _renderTraitMiniBars(container, pct, levels) {
   });
 }
 
-// 랜딩 카드 미리보기 채우기 (root 하위 .dc-preview 요소들을 샘플 프로필로 채운다)
-function _renderDiscoverPreviews(root) {
-  const scope = root || document;
+// 디스커버 카드 정의 (아이콘 스프라이트 id · 제목 · 설명 · 미리보기 키)
+// test.html 에 하드코딩돼 있던 6개 카드를 모듈이 소유하도록 이관.
+const DISCOVER_CARDS = [
+  { icon: "ic-chart", title: "5개 특성 백분위", desc: "OCEAN 다섯 차원의 점수를 백분위로 확인합니다.", preview: "traits" },
+  { icon: "ic-tag", title: "성격 유형", desc: "특성 조합으로 도출된 나만의 아키타입을 받아요.", preview: "type" },
+  { icon: "ic-briefcase", title: "커리어 적합도", desc: "성향에 맞는 직무·역할 추천을 제공합니다.", preview: "career" },
+  { icon: "ic-people", title: "협업 인사이트", desc: "팀워크와 소통 스타일에 대한 힌트를 얻어요.", preview: "collab" },
+  { icon: "ic-growth", title: "성장 제안", desc: "각 특성별 발전 방향을 안내합니다.", preview: "growth" },
+  { icon: "ic-search", title: "표본 비교", desc: "근사 기준과 비교해 위치를 파악해요.", preview: "norms" },
+];
+
+// 그리드에 6개 discover-card(<details>)를 생성한다. test.html 원본 마크업과 동일 구조.
+function _buildDiscoverCards(grid) {
+  DISCOVER_CARDS.forEach((c) => {
+    const details = document.createElement("details");
+    details.className = "discover-card";
+
+    const summary = document.createElement("summary");
+    const icWrap = document.createElement("span");
+    icWrap.className = "ic-wrap";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "ic");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", "#" + c.icon);
+    svg.appendChild(use);
+    icWrap.appendChild(svg);
+
+    const h3 = document.createElement("h3");
+    h3.textContent = c.title;
+    const p = document.createElement("p");
+    p.textContent = c.desc;
+    summary.append(icWrap, h3, p);
+
+    const preview = document.createElement("div");
+    preview.className = "dc-preview";
+    preview.dataset.preview = c.preview;
+
+    details.append(summary, preview);
+    grid.appendChild(details);
+  });
+}
+
+// 디스커버 카드 렌더 (grid 안에 6개 카드를 만들고, 각 .dc-preview 를 샘플 프로필로 채운다)
+function _renderDiscoverPreviews(grid) {
+  const scope = grid || document;
+  _buildDiscoverCards(scope);
   const sp = _buildProfile(FACTORS, SAMPLE_PCT);
 
   scope.querySelectorAll(".dc-preview").forEach((el) => {
@@ -381,8 +424,8 @@ const OCEAN_MODULE = {
   renderResult(mountEl, ctx) {
     _renderResult(mountEl, ctx);
   },
-  renderDiscoverPreviews(root) {
-    _renderDiscoverPreviews(root);
+  renderDiscoverPreviews(grid) {
+    _renderDiscoverPreviews(grid);
   },
   renderSummaryViz(container, scores) {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

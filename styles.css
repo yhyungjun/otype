@@ -178,6 +178,10 @@ body {
 }
 .dcp-growth-list--blind li::before { background: #fbbf24; }
 
+/* MBTI 디스커버 미리보기 텍스트 라인 */
+.mbti-dcp-line { font-size: 0.82rem; line-height: 1.55; color: var(--r-muted); margin: 0 0 6px; }
+.mbti-dcp-line:last-child { margin-bottom: 0; }
+
 /* FAQ */
 .faq { margin-top: 56px; }
 .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px 18px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }

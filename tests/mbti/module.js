@@ -273,6 +273,97 @@ function _mbtiRenderResult(mountEl, { scores, profile }) {
   mountEl.appendChild(foot);
 }
 
+/* ---------- 디스커버 카드 (인트로 "검사 후 무엇을 알 수 있나요?") ---------- */
+// 각 카드: 이모지 아이콘 + 제목 + 설명 + .dc-preview(간단한 미리보기).
+// preview 는 fn(el) 형태로, el(.dc-preview) 안에 내용을 채운다.
+const MBTI_DISCOVER_CARDS = [
+  {
+    emoji: "🧭",
+    title: "4가지 지표",
+    desc: "E/I·S/N·T/F·J/P 네 축으로 성향을 측정해요.",
+    preview(el) {
+      MBTI_AXIS_ORDER.forEach((axis) => {
+        const [left, right] = MBTI_AXES[axis];
+        const line = document.createElement("p");
+        line.className = "mbti-dcp-line";
+        line.textContent = `${left}(${MBTI_LETTER_LABEL[left]}) · ${right}(${MBTI_LETTER_LABEL[right]})`;
+        el.appendChild(line);
+      });
+    },
+  },
+  {
+    emoji: "🔤",
+    title: "16가지 유형",
+    desc: "네 글자 조합으로 도출되는 나만의 유형을 받아요.",
+    preview(el) {
+      const p = document.createElement("p");
+      p.className = "mbti-dcp-line";
+      p.textContent = "예: INFP · ENTJ · ISTP … 총 16가지 중 하나로 안내해요.";
+      el.appendChild(p);
+    },
+  },
+  {
+    emoji: "📊",
+    title: "이분 그래프",
+    desc: "각 지표에서 어느 쪽에 가까운지 막대로 확인해요.",
+    preview(el) {
+      // 샘플 성향(치우침이 보이도록)으로 요약형 이분 바 미리보기
+      _renderDichBars(el, { EI: 34, SN: 71, TF: 42, JP: 63 }, true);
+    },
+  },
+  {
+    emoji: "💪",
+    title: "강점과 약점",
+    desc: "유형별 강점과 주의할 점을 함께 짚어줘요.",
+    preview(el) {
+      const s = document.createElement("p");
+      s.className = "mbti-dcp-line";
+      s.textContent = "강점: 몰입력·아이디어·추진력 등 유형별로 다르게.";
+      const b = document.createElement("p");
+      b.className = "mbti-dcp-line";
+      b.textContent = "주의: 놓치기 쉬운 블라인드 스팟도 함께 안내해요.";
+      el.append(s, b);
+    },
+  },
+  {
+    emoji: "💼",
+    title: "추천 직무",
+    desc: "성향에 맞는 직무·역할을 제안해요.",
+    preview(el) {
+      const p = document.createElement("p");
+      p.className = "mbti-dcp-line";
+      p.textContent = "성향에 어울리는 직무·역할을 참고용으로 추천해요.";
+      el.appendChild(p);
+    },
+  },
+];
+
+// 그리드에 5개 discover-card(<details>)를 만들고 각 미리보기를 채운다.
+function _mbtiRenderDiscoverPreviews(grid) {
+  MBTI_DISCOVER_CARDS.forEach((c) => {
+    const details = document.createElement("details");
+    details.className = "discover-card";
+
+    const summary = document.createElement("summary");
+    const icWrap = document.createElement("span");
+    icWrap.className = "ic-wrap";
+    icWrap.textContent = c.emoji;
+
+    const h3 = document.createElement("h3");
+    h3.textContent = c.title;
+    const p = document.createElement("p");
+    p.textContent = c.desc;
+    summary.append(icWrap, h3, p);
+
+    const preview = document.createElement("div");
+    preview.className = "dc-preview";
+    c.preview(preview);
+
+    details.append(summary, preview);
+    grid.appendChild(details);
+  });
+}
+
 /* ---------- 모듈 인터페이스 ---------- */
 const MBTI_MODULE = {
   meta: {
@@ -300,6 +391,9 @@ const MBTI_MODULE = {
   },
   renderResult(mountEl, ctx) {
     _mbtiRenderResult(mountEl, ctx);
+  },
+  renderDiscoverPreviews(grid) {
+    _mbtiRenderDiscoverPreviews(grid);
   },
   renderSummaryViz(container, scores) {
     _renderDichBars(container, scores, true);
