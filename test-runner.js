@@ -50,6 +50,47 @@ function runTest(test) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  /* ---------- 인트로 렌더 (test.meta 기반; 디스커버/FAQ 토글) ---------- */
+  // 인트로 화면(hero/스탯/예시문항/디스커버/FAQ)을 test.meta 로 채운다. 러너는 test-agnostic 유지.
+  function renderIntro(test) {
+    const meta = test.meta;
+
+    document.getElementById("intro-title").textContent = meta.name;
+    document.getElementById("intro-lead").textContent = meta.introLead || meta.tagline || "";
+    document.getElementById("stat-count").textContent = String(test.questions.length);
+    document.getElementById("stat-duration").textContent = meta.durationMin ? `${meta.durationMin}분` : "—";
+    document.getElementById("intro-sample").textContent = meta.sampleQuestion || "";
+    document.getElementById("intro-start").textContent = `${meta.name} 시작하기`;
+
+    // 디스커버: 미리보기 렌더러가 있는 테스트만 노출.
+    const discover = document.getElementById("intro-discover");
+    if (typeof test.renderDiscoverPreviews === "function") {
+      test.renderDiscoverPreviews(document);
+      discover.hidden = false;
+    } else {
+      discover.hidden = true;
+    }
+
+    // FAQ: meta.faq 가 있으면 재구성, 없으면 섹션 숨김.
+    const faqSection = document.getElementById("intro-faq");
+    if (meta.faq?.length) {
+      const list = document.getElementById("faq-list");
+      list.innerHTML = "";
+      meta.faq.forEach(({ q, a }) => {
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = q;
+        const p = document.createElement("p");
+        p.textContent = a;
+        details.append(summary, p);
+        list.appendChild(details);
+      });
+      faqSection.hidden = false;
+    } else {
+      faqSection.hidden = true;
+    }
+  }
+
   /* ---------- 검사 렌더 (모듈의 questions/scaleSize/scaleLabels 로 일반화) ---------- */
   function renderQuestion() {
     const i = state.index;
@@ -302,7 +343,7 @@ function runTest(test) {
   });
 
   renderQuestion();
+  // 인트로를 test.meta 로 채운 뒤 노출(디스커버 미리보기 렌더도 renderIntro 내부에서 수행).
+  renderIntro(test);
   show("intro");
-  // 랜딩 미리보기는 테스트별 코드이므로 모듈에 위임(러너는 test-agnostic 유지).
-  test.renderDiscoverPreviews?.(document);
 }

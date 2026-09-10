@@ -660,3 +660,22 @@ body {
   .mbti-cols { grid-template-columns: 1fr; }
   .dich-row { grid-template-columns: 52px 1fr 52px; }
 }
+
+/* 에겐·테토 결과 레이아웃 — .mbti-* 골격 재사용 + 유형명 대형/매력·끌리는 상대 블록 */
+.et-cover .mbti-emoji { font-size: 3.6rem; }
+.et-cover-title {
+  font-size: 2rem; font-weight: 900; letter-spacing: 0.01em; margin: 4px 0 2px;
+  background: linear-gradient(90deg, #dbe8ff, #7fb0ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.et-cover .dich { margin-top: 8px; text-align: left; }
+
+/* 매력 포인트 / 끌리는 상대 — 다크 카드에 좌측 액센트 바 */
+.et-highlight {
+  background: var(--r-card); border: 1px solid var(--r-line);
+  border-left: 4px solid var(--r-accent); border-radius: 14px;
+  padding: 18px 20px; margin-top: 14px;
+}
+.et-highlight p { margin: 0; font-size: 0.92rem; line-height: 1.75; color: var(--r-text); }
+.et-highlight--charm { border-left-color: #f0b37e; }
+.et-highlight--attracted { border-left-color: #d99bf0; }
