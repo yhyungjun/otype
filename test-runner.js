@@ -62,10 +62,12 @@ function runTest(test) {
     document.getElementById("intro-sample").textContent = meta.sampleQuestion || "";
     document.getElementById("intro-start").textContent = `${meta.name} 시작하기`;
 
-    // 디스커버: 미리보기 렌더러가 있는 테스트만 노출.
+    // 디스커버: 미리보기 렌더러가 있는 테스트만 노출. 카드 마크업은 모듈이 그리드에 직접 생성.
     const discover = document.getElementById("intro-discover");
+    const grid = document.getElementById("discover-grid");
     if (typeof test.renderDiscoverPreviews === "function") {
-      test.renderDiscoverPreviews(document);
+      grid.replaceChildren();
+      test.renderDiscoverPreviews(grid);
       discover.hidden = false;
     } else {
       discover.hidden = true;
