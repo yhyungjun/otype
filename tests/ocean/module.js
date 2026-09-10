@@ -81,6 +81,123 @@ function _renderCollab(container, collab) {
   container.appendChild(ul);
 }
 
+/* ---------- 랜딩 카드 미리보기 (app.js SAMPLE_PCT/renderTraitMiniBars/populateDiscoverPreviews 이식) ---------- */
+// 랜딩 카드 미리보기용 샘플 프로필 (실행가/The Executor 유형)
+const SAMPLE_PCT = { O: 62, C: 82, E: 48, A: 66, N: 35 };
+
+// 랜딩 카드 미니 특성 바 렌더
+function _renderTraitMiniBars(container, pct, levels) {
+  container.innerHTML = "";
+  ["O", "C", "E", "A", "N"].forEach((k) => {
+    const f = FACTORS[k];
+    const row = document.createElement("div");
+    row.className = "dcm-row";
+
+    const labelEl = document.createElement("div");
+    labelEl.className = "dcm-label";
+    const enSpan = document.createElement("span");
+    enSpan.className = "dcm-en";
+    enSpan.textContent = f.english;
+    const krSpan = document.createElement("span");
+    krSpan.className = "dcm-kr";
+    krSpan.textContent = f.name;
+    labelEl.appendChild(enSpan);
+    labelEl.appendChild(krSpan);
+
+    const trackEl = document.createElement("div");
+    trackEl.className = "dcm-track";
+    const fillEl = document.createElement("div");
+    fillEl.className = "dcm-fill";
+    fillEl.style.width = pct[k] + "%";
+    fillEl.style.background = f.color;
+    trackEl.appendChild(fillEl);
+
+    const levelEl = document.createElement("span");
+    levelEl.className = "dcm-level";
+    levelEl.textContent = LEVEL_EN[levels[k]];
+
+    row.appendChild(labelEl);
+    row.appendChild(trackEl);
+    row.appendChild(levelEl);
+    container.appendChild(row);
+  });
+}
+
+// 랜딩 카드 미리보기 채우기 (root 하위 .dc-preview 요소들을 샘플 프로필로 채운다)
+function _renderDiscoverPreviews(root) {
+  const scope = root || document;
+  const sp = _buildProfile(FACTORS, SAMPLE_PCT);
+
+  scope.querySelectorAll(".dc-preview").forEach((el) => {
+    const key = el.dataset.preview;
+    if (!key) return;
+
+    if (key === "traits") {
+      _renderTraitMiniBars(el, SAMPLE_PCT, sp.levels);
+
+    } else if (key === "type") {
+      el.innerHTML = "";
+
+      const headline = document.createElement("p");
+      headline.className = "dcp-type-title";
+      headline.textContent = sp.type.title;
+
+      const sub = document.createElement("p");
+      sub.className = "dcp-type-sub";
+      sub.textContent = sp.type.code + " · " + sp.type.role;
+
+      const sumEl = document.createElement("p");
+      sumEl.className = "dcp-type-summary";
+      sumEl.textContent = sp.summary;
+
+      el.appendChild(headline);
+      el.appendChild(sub);
+      el.appendChild(sumEl);
+
+    } else if (key === "career") {
+      _renderCareer(el, sp.career);
+
+    } else if (key === "collab") {
+      _renderCollab(el, sp.collab);
+
+    } else if (key === "growth") {
+      el.innerHTML = "";
+
+      const sLabel = document.createElement("p");
+      sLabel.className = "dcp-growth-label dcp-growth-label--strength";
+      sLabel.textContent = "강점";
+
+      const sList = document.createElement("ul");
+      sList.className = "dcp-growth-list";
+      sp.strengths.slice(0, 3).forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = s;
+        sList.appendChild(li);
+      });
+
+      const bLabel = document.createElement("p");
+      bLabel.className = "dcp-growth-label dcp-growth-label--blind";
+      bLabel.textContent = "주의할 지점";
+
+      const bList = document.createElement("ul");
+      bList.className = "dcp-growth-list dcp-growth-list--blind";
+      sp.blindspots.slice(0, 3).forEach((b) => {
+        const li = document.createElement("li");
+        li.textContent = b;
+        bList.appendChild(li);
+      });
+
+      el.appendChild(sLabel);
+      el.appendChild(sList);
+      el.appendChild(bLabel);
+      el.appendChild(bList);
+
+    } else if (key === "norms") {
+      _renderNormBars(el, sp.norms);
+    }
+  });
+}
+
 /* ---------- 결과 뷰 내부 마크업 (index.html #view-result 의 inner, .result-actions 제외) ---------- */
 function _resultTemplate() {
   return `
@@ -246,5 +363,8 @@ const OCEAN_MODULE = {
   },
   renderResult(mountEl, ctx) {
     _renderResult(mountEl, ctx);
+  },
+  renderDiscoverPreviews(root) {
+    _renderDiscoverPreviews(root);
   },
 };
