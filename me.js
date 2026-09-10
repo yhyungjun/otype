@@ -1,6 +1,7 @@
 // 마이페이지 — 로그인 사용자의 검사 결과를 모아 카드로 보여준다.
 // 소유자 SELECT RLS(own_select_results) 덕분에 본인 행만 조회된다.
-// 전역 의존: sb·Auth(auth.js), FACTORS(questions.js), buildProfile(archetypes.js), renderRadar(radar.js).
+// 전역 의존: sb·Auth(auth.js), getTest(tests/registry.js), renderRadar(radar.js).
+// 프로필은 row.test_id 로 테스트 모듈을 찾아 t.buildProfile(scores) 로 계산한다.
 
 const root = document.getElementById("me-root");
 
@@ -67,7 +68,7 @@ function renderLogin() {
 
 // 내 결과 카드 — 텍스트는 textContent로만 주입.
 function resultCard(row) {
-  const profile = buildProfile(FACTORS, row.scores);
+  const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
   const type = profile.type;
 
   const card = document.createElement("article");
@@ -127,8 +128,8 @@ function messageCard(text) {
 
 async function renderResults(session) {
   const { data, error } = await sb
-    .from("ocean_results")
-    .select("id, created_at, type_code, type_title, type_role, scores, share_id")
+    .from("results")
+    .select("id, created_at, test_id, type_code, type_title, type_role, scores, share_id")
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 

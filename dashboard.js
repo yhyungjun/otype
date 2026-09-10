@@ -1,5 +1,6 @@
 // 친구 결과 대시보드 — 친구 공유 코드(share_id)를 localStorage에 모아 요약 카드로 렌더한다.
-// 전역 의존: sb(auth.js), FACTORS(data/questions.js), buildProfile(data/archetypes.js), renderRadar(radar.js).
+// 전역 의존: sb(auth.js), getTest(tests/registry.js), renderRadar(radar.js).
+// 프로필은 row.test_id 로 테스트 모듈을 찾아 t.buildProfile(scores) 로 계산한다.
 
 const FRIENDS_KEY = "otype:friends";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -65,7 +66,7 @@ function makeRemoveButton(id) {
 
 // 성공 요약 카드. 텍스트는 모두 textContent로 주입(XSS 방지).
 function buildSummaryCard(id, row) {
-  const profile = buildProfile(FACTORS, row.scores);
+  const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
   const type = profile.type;
 
   const card = document.createElement("article");
