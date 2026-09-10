@@ -367,4 +367,23 @@ const OCEAN_MODULE = {
   renderDiscoverPreviews(root) {
     _renderDiscoverPreviews(root);
   },
+  renderSummaryViz(container, scores) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "sc-radar");
+    svg.setAttribute("viewBox", "0 0 460 420");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Big Five 레이더 차트");
+    container.appendChild(svg);
+    renderRadar(svg, scores, OCEAN_MODULE.buildProfile(scores).levels);
+  },
+  renderCompareViz(container, datasets) {
+    // datasets: [{ scores, color, label }, …]
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "cmp-radar");
+    svg.setAttribute("viewBox", "0 0 460 420");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "비교 레이더 차트");
+    container.appendChild(svg);
+    renderCompareRadar(svg, datasets.map((d) => ({ pct: d.scores, color: d.color })));
+  },
 };

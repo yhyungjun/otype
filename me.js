@@ -71,7 +71,8 @@ function renderLogin() {
 
 // 내 결과 카드 — 텍스트는 textContent로만 주입.
 function resultCard(row) {
-  const profile = getTest(row.test_id || "ocean").buildProfile(row.scores);
+  const t = getTest(row.test_id || "ocean");
+  const profile = t.buildProfile(row.scores);
   const type = profile.type;
 
   const card = document.createElement("article");
@@ -94,11 +95,8 @@ function resultCard(row) {
   sub.textContent = `${type.code} · ${type.role}`;
   cover.append(kicker, emoji, title, sub);
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("class", "sc-radar");
-  svg.setAttribute("viewBox", "0 0 460 420");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", "Big Five 레이더 차트");
+  const viz = document.createElement("div");
+  viz.className = "sc-viz";
 
   const summary = document.createElement("blockquote");
   summary.className = "sc-summary";
@@ -132,8 +130,8 @@ function resultCard(row) {
 
   actions.append(copy, img, cmp);
 
-  card.append(cover, svg, summary, actions);
-  renderRadar(svg, row.scores, profile.levels);
+  card.append(cover, viz, summary, actions);
+  t.renderSummaryViz(viz, row.scores);
   return card;
 }
 
@@ -209,7 +207,8 @@ function clearCompare() {
 function openCompare() {
   const rows = [...compareSel.values()];
   if (rows.length !== 2) return;
-  if ((rows[0].test_id || "ocean") !== (rows[1].test_id || "ocean")) {
+  const testId = rows[0].test_id || "ocean";
+  if (testId !== (rows[1].test_id || "ocean")) {
     toast("같은 테스트끼리만 비교할 수 있어요");
     return;
   }
@@ -243,11 +242,8 @@ function openCompare() {
     heads.appendChild(h);
   });
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("class", "cmp-radar");
-  svg.setAttribute("viewBox", "0 0 460 420");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", "비교 레이더 차트");
+  const viz = document.createElement("div");
+  viz.className = "cmp-viz";
 
   const legend = document.createElement("div");
   legend.className = "cmp-legend";
@@ -272,10 +268,13 @@ function openCompare() {
   backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
   acts.append(saveBtn, closeBtn);
 
-  modal.append(heads, svg, legend, acts);
+  modal.append(heads, viz, legend, acts);
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
-  renderCompareRadar(svg, items.map((it) => ({ pct: it.row.scores, color: it.color })));
+  getTest(testId).renderCompareViz(
+    viz,
+    items.map((it) => ({ scores: it.row.scores, color: it.color, label: fmtDate(it.row.created_at) }))
+  );
 
   saveBtn.addEventListener("click", async () => {
     if (typeof html2canvas === "undefined") { toast("이미지 저장을 사용할 수 없어요"); return; }

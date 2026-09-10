@@ -471,6 +471,9 @@ body {
   margin: 18px auto 4px;
 }
 
+/* 시각화 위임 컨테이너 — 내부 .sc-radar/.cmp-radar 가 실제 사이징을 담당한다. */
+.sc-viz, .cmp-viz { width: 100%; }
+
 /* 한 줄 요약 인용 */
 .sc-summary {
   font-size: 0.98rem; line-height: 1.7; font-style: italic; font-weight: 500;
@@ -577,3 +580,83 @@ body {
 .cmp-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 12px; font-size: .85rem; color: #cfe0f5; }
 .cmp-leg { display: inline-flex; align-items: center; gap: 6px; }
 .cmp-leg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* ===== P3 16가지 성격유형(MBTI형): 이분 바 + 결과 레이아웃 ===== */
+/* 이분(dichotomy) 바 — 다크 카드(--r-*) 안에서 사용. 결과 커버·요약·비교 공용. */
+.dich { display: flex; flex-direction: column; gap: 14px; }
+.dich-row { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 10px; }
+.dich-end { display: flex; flex-direction: column; line-height: 1.15; color: var(--r-muted); }
+.dich-end.l { text-align: left; align-items: flex-start; }
+.dich-end.r { text-align: right; align-items: flex-end; }
+.dich-end b { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em; }
+.dich-end span { font-size: 0.68rem; font-weight: 600; }
+.dich-end.on { color: var(--r-text); }
+.dich-end.on b { color: var(--r-accent); }
+.dich-track {
+  position: relative; height: 12px; border-radius: 999px;
+  background: var(--r-card); border: 1px solid var(--r-line); overflow: hidden;
+}
+.dich-fill {
+  position: absolute; top: 0; bottom: 0; width: 0;
+  background: linear-gradient(90deg, rgba(75,143,252,0.45), var(--r-accent));
+  transition: width 0.5s ease;
+}
+.dich-fill.to-r { left: 50%; }
+.dich-fill.to-l { right: 50%; background: linear-gradient(270deg, rgba(75,143,252,0.45), var(--r-accent)); }
+/* 중앙 기준선 */
+.dich-track::before {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: var(--r-line); z-index: 1;
+}
+
+/* 요약형(공유·대시보드·마이페이지 카드) — 라벨 없이 글자만 */
+.dich--compact { gap: 10px; }
+.dich--compact .dich-row { grid-template-columns: 22px 1fr 22px; gap: 8px; }
+.dich--compact .dich-end b { font-size: 0.9rem; }
+.dich--compact .dich-track { height: 9px; }
+
+/* 비교형 — 데이터셋별 마커를 트랙 위에 겹쳐 표시 */
+.dich--compare .dich-row--cmp { grid-template-columns: 22px 1fr 22px; }
+.dich-track--cmp { height: 14px; overflow: visible; }
+.dich-marker {
+  position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%;
+  transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.85);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4); z-index: 2;
+}
+
+/* 16유형 결과 레이아웃 — .result-view > div 다크 카드 위에 얹힘 */
+.mbti-cover { text-align: center; }
+.mbti-emoji { font-size: 3.2rem; line-height: 1; margin-bottom: 8px; }
+.mbti-code {
+  font-size: 2.6rem; font-weight: 900; letter-spacing: 0.14em; margin: 0;
+  background: linear-gradient(90deg, #dbe8ff, #7fb0ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.mbti-title { font-size: 1.3rem; font-weight: 800; color: var(--r-text); margin: 6px 0 2px; }
+.mbti-summary { font-size: 0.92rem; color: var(--r-muted); margin: 0 0 24px; }
+.mbti-cover .dich { margin-top: 8px; text-align: left; }
+
+.mbti-section { margin-top: 0; }
+.mbti-desc { font-size: 0.95rem; line-height: 1.75; color: var(--r-text); margin: 12px 0 0; }
+
+.mbti-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.mbti-card { background: var(--r-card); border: 1px solid var(--r-line); border-radius: 16px; padding: 20px; }
+.mbti-card h4 { margin: 0 0 12px; font-size: 0.95rem; font-weight: 800; }
+.mbti-card--strength h4 { color: #7fd6a6; }
+.mbti-card--blind h4 { color: #f0b37e; }
+.mbti-card ul { margin: 0; padding-left: 18px; }
+.mbti-card li { font-size: 0.88rem; line-height: 1.6; color: var(--r-text); margin-bottom: 8px; }
+.mbti-card li:last-child { margin-bottom: 0; }
+
+.mbti-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.mbti-chip {
+  font-size: 0.84rem; font-weight: 700; color: var(--r-accent);
+  background: rgba(75,143,252,0.10); border: 1px solid var(--r-line);
+  border-radius: 999px; padding: 7px 14px;
+}
+.mbti-disclaimer { font-size: 0.78rem; color: var(--r-muted); margin: 14px 0 0; opacity: 0.85; }
+
+@media (max-width: 520px) {
+  .mbti-cols { grid-template-columns: 1fr; }
+  .dich-row { grid-template-columns: 52px 1fr 52px; }
+}
