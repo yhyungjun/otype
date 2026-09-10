@@ -127,6 +127,8 @@ function resultCard(row) {
   cmp.textContent = "비교";
   cmp.setAttribute("aria-pressed", "false");
   cmp.addEventListener("click", () => toggleCompare(row, card, cmp));
+  // 필터 탭 재렌더 후에도 비교 선택 상태를 복원(재렌더 desync 방지)
+  if (compareSel.has(row.id)) { card.classList.add("is-selected"); cmp.setAttribute("aria-pressed", "true"); }
 
   actions.append(copy, img, cmp);
 
