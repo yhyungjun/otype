@@ -683,3 +683,12 @@ body {
 .et-highlight p { margin: 0; font-size: 0.92rem; line-height: 1.75; color: var(--r-text); }
 .et-highlight--charm { border-left-color: #f0b37e; }
 .et-highlight--attracted { border-left-color: #d99bf0; }
+
+/* ===== 선입력(prelude) ===== */
+.prelude-card { max-width: 560px; margin: 0 auto; text-align: center; }
+.prelude-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+.prelude-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+@media (max-width: 480px) { .prelude-grid { grid-template-columns: repeat(2, 1fr); } }
+.prelude-opt { font-family: inherit; font-weight: 700; font-size: .95rem; padding: 14px 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; transition: border-color .15s, background .15s; }
+.prelude-opt:hover { border-color: var(--primary); background: var(--primary-soft); }
+.prelude-skip { grid-column: 1 / -1; color: var(--muted); }
