@@ -35,11 +35,13 @@ function runTest(test) {
     userId: null,
     lastShareId: null,
     lastResult: null,
+    prelude: {},
   };
 
   const views = {
     intro: document.getElementById("view-intro"),
     login: document.getElementById("view-login"),
+    prelude: document.getElementById("view-prelude"),
     test: document.getElementById("view-test"),
     result: document.getElementById("view-result"),
   };
@@ -147,6 +149,9 @@ function runTest(test) {
   /* ---------- 결과 (채점·프로필·렌더를 모듈에 위임) ---------- */
   function finish() {
     const scores = test.score(state.answers);
+    // 선입력값(예: scores.known)을 채점 결과에 병합 → buildProfile/renderResult/saveResult로 전파.
+    // prelude 미선언 테스트는 state.prelude가 {}라 변화 없음.
+    Object.assign(scores, state.prelude || {});
     const profile = test.buildProfile(scores);
     state.lastResult = { scores, profile };
     test.renderResult(document.getElementById("result-mount"), {
@@ -176,7 +181,27 @@ function runTest(test) {
   function beginTest(session) {
     state.nickname = Auth.displayName(session);
     state.userId = session.user.id;
-    start();
+    state.answers = [];
+    state.prelude = {};
+    // meta.prelude 선언 테스트만 선입력 스텝 노출. 미선언 시 기존 흐름(바로 검사) 유지.
+    if (test.meta.prelude) { renderPrelude(test.meta.prelude); show("prelude"); }
+    else start();
+  }
+
+  // 선입력(prelude): 문항 전에 단답 하나를 받는다. 선택값은 state.prelude[key] 에 저장 후 start().
+  function renderPrelude(p) {
+    document.getElementById("prelude-title").textContent = p.title;
+    document.getElementById("prelude-hint").textContent = p.hint || "";
+    const box = document.getElementById("prelude-options");
+    box.replaceChildren();
+    const opts = [...p.options, ...(p.allowSkip ? [p.allowSkip] : [])];
+    opts.forEach((o) => {
+      const b = document.createElement("button");
+      b.className = "prelude-opt" + (p.allowSkip && o === p.allowSkip ? " prelude-skip" : "");
+      b.textContent = o.label;
+      b.addEventListener("click", () => { state.prelude[p.key] = o.value; start(); });
+      box.appendChild(b);
+    });
   }
 
   // 헤더 로그인 상태 표시(제공자 제공 이름은 textContent로 안전하게 삽입)
