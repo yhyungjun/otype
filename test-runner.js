@@ -107,10 +107,22 @@ function runTest(test) {
     document.getElementById("progress-bar").style.width = `${pct}%`;
 
     document.getElementById("q-index").textContent = `Q${i + 1}`;
-    document.getElementById("q-text").textContent = q.text;
 
     const box = document.getElementById("scale-options");
     box.innerHTML = "";
+    box.classList.remove("choice-list");
+    if (test.meta.format === "choice") {
+      renderChoice(q, i, box);
+    } else {
+      renderLikert(q, i, box);
+    }
+
+    document.getElementById("btn-prev").style.visibility = i === 0 ? "hidden" : "visible";
+  }
+
+  // Likert(척도형): meta.scaleSize 만큼 숫자 값 버튼을 렌더. answer = 1..scaleSize.
+  function renderLikert(q, i, box) {
+    document.getElementById("q-text").textContent = q.text;
     const size = test.meta.scaleSize;
     const labels = test.meta.scaleLabels || [];
     for (let value = 1; value <= size; value++) {
@@ -129,8 +141,29 @@ function runTest(test) {
       btn.addEventListener("click", () => selectAnswer(value));
       box.appendChild(btn);
     }
+  }
 
-    document.getElementById("btn-prev").style.visibility = i === 0 ? "hidden" : "visible";
+  // A/B(양자택일형): 두 시나리오 중 가까운 쪽을 고른다. answer = "a" | "b".
+  // q.text 는 쓰지 않고 공통 프롬프트를 노출한다(문항별 지문은 각 버튼의 q.a / q.b).
+  function renderChoice(q, i, box) {
+    document.getElementById("q-text").textContent = "더 가까운 쪽을 선택하세요";
+    box.classList.add("choice-list");
+    [["a", q.a], ["b", q.b]].forEach(([value, textForValue]) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice-btn" + (state.answers[i] === value ? " selected" : "");
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", state.answers[i] === value);
+      const marker = document.createElement("span");
+      marker.className = "choice-marker";
+      marker.textContent = value.toUpperCase();
+      const labelText = document.createElement("span");
+      labelText.textContent = textForValue;
+      btn.appendChild(marker);
+      btn.appendChild(labelText);
+      btn.addEventListener("click", () => selectAnswer(value));
+      box.appendChild(btn);
+    });
   }
 
   function selectAnswer(value) {
