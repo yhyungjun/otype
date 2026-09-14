@@ -3,9 +3,10 @@
 // buildProfile/renderResult/renderSummaryViz/renderCompareViz 로 소비한다.
 //
 // 로드 순서 의존성: mbti/questions.js → mbti/types.js → mbti/module.js →
-//   real-mbti/stories.js → real-mbti/module.js
-//   재사용(전역): MBTI_AXES, MBTI_QUESTIONS, MBTI_TYPES, MBTI_SCALE,
-//                 _mbtiScore, _renderDichBars, _renderCompareDich, REAL_STORIES
+//   real-mbti/questions.js → real-mbti/stories.js → real-mbti/module.js
+//   재사용(전역): MBTI_AXES, MBTI_TYPES, MBTI_SCALE,
+//                 _renderDichBars, _renderCompareDich, REAL_STORIES, REAL_MBTI_QUESTIONS
+//   문항은 MBTI 리커트(MBTI_QUESTIONS)를 재사용하지 않고 자체 A/B 시나리오(REAL_MBTI_QUESTIONS)를 쓴다.
 //
 // 선입력(prelude): 사용자가 "알고 있다고 생각하는" MBTI를 먼저 받아
 //   러너가 scores.known 으로 병합 → 결과에서 진짜 검사 결과와 비교한다.
@@ -405,12 +406,13 @@ const REAL_MBTI_MODULE = {
     name: "진짜 MBTI 찾기",
     tagline: "알던 MBTI 말고, 진짜 나를 찾다",
     icon: "🕵️",
+    format: "choice",
     scaleSize: 5,
     scaleLabels: MBTI_SCALE.map((s) => s.label),
     introLead:
       "내가 알고 있다고 믿던 MBTI(페르소나)와, 32문항 검사가 짚어낸 '진짜' 유형을 나란히 비교해 드려요. 어느 글자에서 간극이 생겼는지, 나와 가까운 유형은 무엇인지 확인하고, 마지막엔 당신만의 짧은 이야기를 건넵니다.",
     durationMin: 5,
-    sampleQuestion: "처음 보는 사람에게도 먼저 말을 거는 편이다.",
+    sampleQuestion: "A. 모임이 끝나면 2차를 먼저 제안한다 vs B. 모임 뒤엔 혼자 충전할 시간이 필요하다",
     faq: [
       { q: "‘진짜 MBTI 찾기’는 무엇인가요?", a: "먼저 스스로 알고 있다고 생각하는 MBTI를 입력하고, 32문항 검사를 마치면 검사가 찾은 진짜 유형과 나란히 비교해 주는 검사입니다." },
       { q: "공식 MBTI® 검사인가요?", a: "아니요. MBTI가 대중화한 4지표·16유형 방식을 참고해 자체 제작한 문항으로 만든 검사이며, 공식 MBTI® 검사와는 별개입니다." },
@@ -424,9 +426,23 @@ const REAL_MBTI_MODULE = {
       allowSkip: { value: "UNKNOWN", label: "잘 모르겠어요" },
     },
   },
-  questions: MBTI_QUESTIONS,
+  questions: REAL_MBTI_QUESTIONS,
+  // A/B 채점: answers[i] 는 "a"(1번째 글자) | "b"(2번째 글자) | null.
+  // 축별로 "b"(두 번째 글자 I/N/F/P) 선택 비율(%)을 낸다. 미응답 축은 50 기본값.
   score(answers) {
-    return _mbtiScore(answers);
+    const counts = { EI: { b: 0, total: 0 }, SN: { b: 0, total: 0 }, TF: { b: 0, total: 0 }, JP: { b: 0, total: 0 } };
+    REAL_MBTI_QUESTIONS.forEach((q, i) => {
+      const ans = answers[i];
+      if (ans !== "a" && ans !== "b") return;
+      counts[q.axis].total += 1;
+      if (ans === "b") counts[q.axis].b += 1;
+    });
+    const scores = {};
+    RM_AXIS_ORDER.forEach((axis) => {
+      const { b, total } = counts[axis];
+      scores[axis] = total === 0 ? RM_MIDPOINT : Math.round((b / total) * 100);
+    });
+    return scores;
   },
   buildProfile(scores) {
     return _rmBuildProfile(scores);

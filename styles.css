@@ -261,6 +261,26 @@ body {
 .scale-btn:hover .marker, .scale-btn.selected .marker { border-color: var(--primary); }
 .scale-btn.selected .marker { background: var(--primary); box-shadow: inset 0 0 0 3px #fff; }
 
+/* A/B 선택형 문항 — 두 시나리오를 위아래 큰 버튼으로 */
+.choice-list { display: flex; flex-direction: column; gap: 12px; max-width: 480px; margin: 0 auto; width: 100%; }
+.choice-btn {
+  font-family: inherit; font-size: 1rem; font-weight: 600; text-align: left; line-height: 1.5;
+  padding: 18px 20px; border-radius: 16px; border: 2px solid var(--line); background: var(--card);
+  color: var(--text); cursor: pointer; display: flex; align-items: flex-start; gap: 14px;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.choice-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+.choice-btn.selected { border-color: var(--primary); background: var(--primary-soft); }
+.choice-btn:active { transform: scale(0.99); }
+.choice-marker {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 0.82rem; font-weight: 800;
+  color: var(--primary); background: var(--primary-soft); border: 2px solid var(--line);
+  transition: all 0.15s;
+}
+.choice-btn:hover .choice-marker, .choice-btn.selected .choice-marker { border-color: var(--primary); }
+.choice-btn.selected .choice-marker { color: #fff; background: var(--primary); }
+
 .test-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
 .test-hint { font-size: 0.82rem; color: var(--muted); }
 @media (max-width: 560px) { .test-hint { display: none; } }
