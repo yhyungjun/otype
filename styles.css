@@ -801,3 +801,15 @@ body {
   .rm-tile { width: 32px; height: 42px; font-size: 1.2rem; }
   .rm-vs-code { font-size: 1.4rem; }
 }
+
+/* 내 결과 카드: 클릭 가능 + 상세 모달 */
+.share-card { cursor: pointer; }
+.share-card--msg, .name-card { cursor: default; }
+.sc-hint { font-size: .72rem; color: var(--r-muted); margin-top: 4px; }
+.sc-danger { color: #ff9a9a; }
+.sc-danger:hover { border-color: #ff6b6b; color: #ffd0d0; }
+.detail-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; z-index: 60; padding: 24px 12px; overflow-y: auto; }
+.detail-modal { position: relative; width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto; border-radius: 22px; }
+.detail-close { position: sticky; top: 8px; left: 100%; transform: translateX(-8px); z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,.15); color: #fff; font-size: 1rem; cursor: pointer; }
+.detail-close:hover { background: rgba(255,255,255,.28); }
+.detail-modal .result-view { padding: 0; }

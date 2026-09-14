@@ -7,6 +7,12 @@ const root = document.getElementById("me-root");
 
 const compareSel = new Map(); // rowId → row (최대 2)
 const CMP_COLORS = ["#4b8ffc", "#f5a623"];
+let _session = null; // 삭제 후 목록 재조회를 위해 main()에서 보관.
+
+// 삭제 등으로 목록을 다시 그린다. 재렌더 전 남아있는 비교 선택 상태를 정리.
+function reloadResults() {
+  if (_session) renderResults(_session);
+}
 
 function toast(msg) {
   let el = document.querySelector(".toast");
@@ -93,14 +99,13 @@ function resultCard(row) {
   const sub = document.createElement("p");
   sub.className = "sc-type";
   sub.textContent = `${type.code} · ${type.role}`;
-  cover.append(kicker, emoji, title, sub);
+  const hint = document.createElement("p");
+  hint.className = "sc-hint";
+  hint.textContent = "카드를 눌러 자세히 보기";
+  cover.append(kicker, emoji, title, sub, hint);
 
   const viz = document.createElement("div");
   viz.className = "sc-viz";
-
-  const summary = document.createElement("blockquote");
-  summary.className = "sc-summary";
-  summary.textContent = `“${profile.summary}”`;
 
   const actions = document.createElement("div");
   actions.className = "sc-actions";
@@ -128,11 +133,82 @@ function resultCard(row) {
   // 필터 탭 재렌더 후에도 비교 선택 상태를 복원(재렌더 desync 방지)
   if (compareSel.has(row.id)) { card.classList.add("is-selected"); cmp.setAttribute("aria-pressed", "true"); }
 
-  actions.append(copy, img, cmp);
+  const del = document.createElement("button");
+  del.className = "sc-btn sc-danger";
+  del.textContent = "삭제";
+  del.addEventListener("click", () => deleteResult(row, del));
 
-  card.append(cover, viz, summary, actions);
+  actions.append(copy, img, cmp, del);
+  // 액션 버튼 클릭은 카드 상세 모달을 열지 않는다.
+  actions.addEventListener("click", (e) => e.stopPropagation());
+
+  card.append(cover, viz);
+  // real-mbti 등 summary 없는 테스트는 "undefined" 대신 요약 블록 자체를 생략.
+  if (typeof profile.summary === "string" && profile.summary.trim()) {
+    const summary = document.createElement("blockquote");
+    summary.className = "sc-summary";
+    summary.textContent = `“${profile.summary}”`;
+    card.append(summary);
+  }
+  card.append(actions);
   t.renderSummaryViz(viz, row.scores);
+
+  // 카드 클릭 → 구체 수치를 포함한 전체 상세 결과 모달.
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".sc-actions")) return;
+    openDetail(row);
+  });
   return card;
+}
+
+// 전체 상세 결과(구체 수치·랭킹·바)를 모달로 연다.
+function openDetail(row) {
+  const t = getTest(row.test_id || "ocean");
+  if (!t) { toast("상세 결과를 불러올 수 없어요"); return; }
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "detail-backdrop";
+  const modal = document.createElement("div");
+  modal.className = "detail-modal";
+  const close = document.createElement("button");
+  close.className = "detail-close";
+  close.setAttribute("aria-label", "닫기");
+  close.textContent = "✕";
+  const view = document.createElement("div");
+  view.className = "result-view";
+  const mount = document.createElement("div");
+  mount.className = "detail-mount";
+  view.appendChild(mount);
+  modal.append(close, view);
+  backdrop.appendChild(modal);
+
+  function closeDetail() {
+    backdrop.remove();
+    document.removeEventListener("keydown", onKey);
+  }
+  function onKey(e) { if (e.key === "Escape") closeDetail(); }
+
+  close.addEventListener("click", closeDetail);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeDetail(); });
+  document.addEventListener("keydown", onKey);
+
+  document.body.appendChild(backdrop);
+  t.renderResult(mount, { scores: row.scores, profile: t.buildProfile(row.scores), nickname: row.nickname });
+}
+
+// 결과 삭제 — 소유자 DELETE RLS 정책이 서버에 이미 존재한다.
+async function deleteResult(row, btn) {
+  if (!window.confirm("이 검사 결과를 삭제할까요? 되돌릴 수 없어요.")) return;
+  if (btn) btn.disabled = true;
+  const { error } = await sb.from("results").delete().eq("id", row.id);
+  if (error) {
+    console.error("결과 삭제 실패:", error.message);
+    toast("삭제에 실패했어요");
+    if (btn) btn.disabled = false;
+    return;
+  }
+  toast("삭제했어요 ✓");
+  reloadResults();
 }
 
 async function saveCardImage(cardEl, row, btn) {
@@ -304,6 +380,10 @@ function messageCard(text) {
 }
 
 async function renderResults(session) {
+  // 재조회 시 삭제된 카드가 비교 선택에 남지 않도록 상태를 정리.
+  compareSel.clear();
+  document.querySelector(".compare-bar")?.remove();
+
   const { data, error } = await sb
     .from("results")
     .select("id, created_at, test_id, type_code, type_title, type_role, scores, share_id")
@@ -383,6 +463,7 @@ async function main() {
     const session = await Auth.getSession();
     renderAuth(session);
     if (!session) { renderLogin(); return; }
+    _session = session;
     await renderResults(session);
   } catch (e) {
     console.error(e);
