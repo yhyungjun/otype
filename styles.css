@@ -713,6 +713,12 @@ body {
 .prelude-opt:hover { border-color: var(--primary); background: var(--primary-soft); }
 .prelude-skip { grid-column: 1 / -1; color: var(--muted); }
 
+/* 결과 섹션 여백 — MBTI·에겐테토·진짜MBTI 결과 블록이 다크 카드 가장자리에 붙지 않도록.
+   (OCEAN은 profile 계열·analysis 등 섹션별 자체 패딩이 있어 대상 아님) */
+.mbti-cover, .mbti-section, .rm-section { padding: 22px 26px; }
+.mbti-cover, .rm-cover { padding-top: 30px; }
+@media (max-width: 560px) { .mbti-cover, .mbti-section, .rm-section { padding: 18px 18px; } }
+
 /* ===== 진짜 MBTI 찾기 (real-mbti) 결과 ===== */
 .rm-section { margin-top: 0; }
 .rm-section + .rm-section { margin-top: 8px; }
