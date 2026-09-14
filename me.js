@@ -219,7 +219,7 @@ async function saveCardImage(cardEl, row, btn) {
   try {
     const canvas = await html2canvas(cardEl, {
       backgroundColor: "#0f1b34", scale: 2, useCORS: true, logging: false,
-      ignoreElements: (el) => el.classList?.contains("sc-actions"),
+      ignoreElements: (el) => el.classList?.contains("sc-actions") || el.classList?.contains("sc-hint"),
     });
     const d = new Date(row.created_at);
     const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
