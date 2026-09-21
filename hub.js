@@ -9,7 +9,8 @@ function renderHub() {
     const icon = document.createElement("div"); icon.className = "tc-icon"; icon.textContent = t.meta.icon || "🧪";
     const name = document.createElement("h3"); name.className = "tc-name"; name.textContent = t.meta.name;
     const tag = document.createElement("p"); tag.className = "tc-tag"; tag.textContent = t.meta.tagline || "";
-    a.append(icon, name, tag);
+    const body = document.createElement("div"); body.className = "tc-body"; body.append(name, tag);
+    a.append(icon, body);
     return a;
   }));
 }
