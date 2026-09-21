@@ -40,7 +40,7 @@ function renderCard(nickname, profile, scores, t) {
   // 스켈레톤은 innerHTML 로 만들되, 텍스트 필드는 아래에서 textContent 로 채운다.
   card.innerHTML = `
     <header class="sc-cover">
-      <span class="sc-kicker">OCEAN 성격 검사</span>
+      <span class="sc-kicker"></span>
       <div class="sc-emoji" aria-hidden="true"></div>
       <h2 class="sc-name"></h2>
       <p class="sc-type"></p>
@@ -50,6 +50,7 @@ function renderCard(nickname, profile, scores, t) {
     <blockquote class="sc-summary"></blockquote>`;
 
   const type = profile.type;
+  card.querySelector(".sc-kicker").textContent = t.meta.name;
   card.querySelector(".sc-emoji").textContent = type.emoji || "";
   card.querySelector(".sc-name").textContent = `${nickname} 님`;
   card.querySelector(".sc-type").textContent = type.title;

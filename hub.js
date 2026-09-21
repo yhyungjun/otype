@@ -26,7 +26,7 @@ function updateAuthUI(session) {
   const mine = document.createElement("a");
   mine.className = "auth-link";
   mine.href = "me.html";
-  mine.textContent = "내 결과";
+  mine.textContent = "내 도감";
   const out = document.createElement("button");
   out.className = "auth-logout";
   out.dataset.action = "logout";

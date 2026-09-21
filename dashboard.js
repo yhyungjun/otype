@@ -78,7 +78,7 @@ function buildSummaryCard(id, row) {
 
   const kicker = document.createElement("span");
   kicker.className = "sc-kicker";
-  kicker.textContent = "OCEAN 성격 검사";
+  kicker.textContent = t.meta.name;
 
   const emoji = document.createElement("div");
   emoji.className = "sc-emoji";

@@ -63,6 +63,9 @@ function runTest(test) {
     document.getElementById("stat-duration").textContent = meta.durationMin ? `${meta.durationMin}분` : "—";
     document.getElementById("intro-sample").textContent = meta.sampleQuestion || "";
     document.getElementById("intro-start").textContent = `${meta.name} 시작하기`;
+    document.title = `${meta.name} · 유형도감`;
+    const crumb = document.getElementById("crumb-current");
+    if (crumb) crumb.textContent = meta.name;
 
     // 디스커버: 미리보기 렌더러가 있는 테스트만 노출. 카드 마크업은 모듈이 그리드에 직접 생성.
     const discover = document.getElementById("intro-discover");
@@ -249,7 +252,7 @@ function runTest(test) {
     const mine = document.createElement("a");
     mine.className = "auth-link";
     mine.href = "me.html";
-    mine.textContent = "내 결과";
+    mine.textContent = "내 도감";
     const out = document.createElement("button");
     out.className = "auth-logout";
     out.dataset.action = "logout";
