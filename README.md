@@ -1,19 +1,25 @@
-# 오션(OCEAN) 성격 검사
+# 유형도감 (TypeDex)
 
-Big Five(OCEAN) 모델 기반의 성격 검사. 50문항 · 5점 척도로 응답하면
-5가지 특성 백분위, 성격 유형(아키타입), 종합 분석(강점·블라인드 스팟)을 담은
-프로필을 만들어 줍니다. 결과는 이미지로 저장할 수 있습니다.
+나를 설명하는 모든 유형, 한 곳에. 여러 유형 테스트를 골라 응시하고,
+로그인 계정에 저장된 결과를 "내 도감"에 모아 보는 정적 사이트(바닐라 JS + Supabase)입니다.
 
-## 특징
+## 테스트
 
-- **50문항 검사** — 공개 도메인 IPIP Big-Five Factor Markers(Goldberg) 기반
-- **결과 프로필** — 오각형 레이더 차트 + 유형(예: The Executor · 유형 C) + 특성별 해석
-- **이미지 저장** — 결과를 PNG로 내려받기 (html2canvas)
-- **토스 스타일 UI** — 토스 블루 팔레트, 커스텀 SVG 아이콘, 반응형
+- **otype 성격 검사** — 5축(Big Five) 50문항. 공개 도메인 IPIP Big-Five Factor Markers(Goldberg) 기반
+- **MBTI 유형 검사** — 4개 이분축 32문항(원작 문항, 공식 MBTI®와 별개)
+- **진짜 MBTI 찾기** — 알던 MBTI vs 진짜 MBTI, A/B 양자택일 32문항
+- **에겐·테토 기질 테스트** — 2축 4유형 20문항
+
+## 기능
+
+- **허브 홈** — 레지스트리의 테스트를 카드로 나열, 카드 클릭으로 응시
+- **내 도감** — 내 결과 목록 · 테스트별 필터 · 상세 수치 · 비교 · 이미지 저장 · 삭제
+- **공유** — 결과별 공유 링크(`share.html?id=`), 친구 결과 대시보드
+- **로그인** — 카카오 · 구글(Supabase Auth)
 
 ## 실행
 
-빌드 불필요. `index.html`을 브라우저로 열면 됩니다. 로컬 서버로 띄우려면:
+빌드 불필요. 로컬 서버로 띄우려면:
 
 ```bash
 node server.js   # http://localhost:4173
@@ -22,12 +28,14 @@ node server.js   # http://localhost:4173
 ## 구조
 
 ```
-index.html          랜딩 · 검사 · 결과 3화면
-styles.css          디자인(토스 블루 테마)
-app.js              진행 · 채점 · 결과 렌더 · 이미지 저장
-data/questions.js   50문항 + 5개 특성 정의
-data/archetypes.js  유형 판정 · 종합 분석 생성
-vendor/             html2canvas (이미지 저장)
+index.html / hub.js        허브 홈
+test.html / test-runner.js 공용 러너(인트로 · 문항 · 결과 · 저장)
+me.html / me.js            내 도감
+share.html / share.js      공유된 결과
+dashboard.html / dashboard.js  친구 결과 대시보드
+tests/<id>/                테스트 모듈(questions · types/archetypes · module)
+tests/registry.js          테스트 레지스트리
+assets/                    로고 · 아이콘 · OG 이미지
 ```
 
-> 본 검사는 참고용 진단이며 전문적인 심리 상담을 대체하지 않습니다.
+> 본 검사들은 참고용 진단이며 전문적인 심리 상담을 대체하지 않습니다.

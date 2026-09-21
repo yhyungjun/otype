@@ -1,7 +1,7 @@
 {
-  "name": "오션(OCEAN) 성격 검사",
-  "short_name": "OCEAN",
-  "description": "나를 발견하는 심리 검사 플랫폼",
+  "name": "유형도감",
+  "short_name": "유형도감",
+  "description": "나를 설명하는 모든 유형, 한 곳에",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

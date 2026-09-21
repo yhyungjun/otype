@@ -126,7 +126,7 @@ function _renderTraitMiniBars(container, pct, levels) {
 // 디스커버 카드 정의 (아이콘 스프라이트 id · 제목 · 설명 · 미리보기 키)
 // test.html 에 하드코딩돼 있던 6개 카드를 모듈이 소유하도록 이관.
 const DISCOVER_CARDS = [
-  { icon: "ic-chart", title: "5개 특성 백분위", desc: "OCEAN 다섯 차원의 점수를 백분위로 확인합니다.", preview: "traits" },
+  { icon: "ic-chart", title: "5개 특성 백분위", desc: "5개 축(Big Five)의 점수를 백분위로 확인합니다.", preview: "traits" },
   { icon: "ic-tag", title: "성격 유형", desc: "특성 조합으로 도출된 나만의 아키타입을 받아요.", preview: "type" },
   { icon: "ic-briefcase", title: "커리어 적합도", desc: "성향에 맞는 직무·역할 추천을 제공합니다.", preview: "career" },
   { icon: "ic-people", title: "협업 인사이트", desc: "팀워크와 소통 스타일에 대한 힌트를 얻어요.", preview: "collab" },
@@ -246,7 +246,7 @@ function _resultTemplate() {
   return `
       <!-- 커버 -->
       <div class="profile-cover">
-        <div class="cover-logo"><img class="cover-logo-mark" src="assets/logo-mark.svg" alt="" width="28" height="28" /> OCEAN</div>
+        <div class="cover-logo"><img class="cover-logo-mark" src="assets/otype-mark.svg" alt="" width="28" height="28" /> otype</div>
         <div class="cover-kicker"><span id="r-kicker">나 는 누 구 인 가</span><span class="kicker-line"></span></div>
         <div class="cover-emoji" id="r-emoji" aria-hidden="true"></div>
         <h1 class="cover-title" id="r-title">The Executor</h1>
@@ -258,7 +258,7 @@ function _resultTemplate() {
         </div>
 
         <div class="cover-foot">
-          <span>OCEAN · Big Five Profile</span>
+          <span>otype · Big Five Profile</span>
           <span id="r-foot">The Executor · 유형 C</span>
         </div>
       </div>
@@ -266,7 +266,7 @@ function _resultTemplate() {
       <!-- 프로필 카드 -->
       <div class="profile-section">
         <h2 class="ps-title">Your Big Five Profile</h2>
-        <p class="ps-sub">OCEAN 5개 특성 · 백분위 척도 기반 해석</p>
+        <p class="ps-sub">otype 5개 축 · 백분위 척도 기반 해석</p>
         <div class="trait-grid" id="trait-grid"></div>
       </div>
 
@@ -391,22 +391,22 @@ function _renderResult(mountEl, { scores, profile, nickname }) {
 const OCEAN_MODULE = {
   meta: {
     id: "ocean",
-    name: "오션 성격 검사",
-    tagline: "나는 누구인가 — Big Five 기반 성격 프로필",
+    name: "otype 성격 검사",
+    tagline: "나는 누구인가 — 5축(Big Five) 성격 프로필",
     icon: "🌊",
     scaleSize: 5,
     scaleLabels: ["전혀 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"],
-    introLead: "오션(OCEAN) 성격 검사로 나를 알아보세요. 5가지 핵심 특성을 50문항으로 정밀하게 진단합니다.",
+    introLead: "otype 성격 검사로 나를 알아보세요. 5가지 핵심 특성(Big Five)을 50문항으로 정밀하게 진단합니다.",
     durationMin: 10,
     sampleQuestion: "나는 파티에서 분위기를 이끄는 사람이다.",
     faq: [
       {
-        q: "오션(OCEAN) 성격 검사가 무엇인가요?",
+        q: "otype 성격 검사가 무엇인가요?",
         a: "개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.",
       },
       {
         q: "MBTI와 무엇이 다른가요?",
-        a: "MBTI는 사람을 유형으로 나누지만, 오션은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.",
+        a: "MBTI는 사람을 유형으로 나누지만, otype은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.",
       },
       {
         q: "결과는 얼마나 정확한가요?",

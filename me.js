@@ -66,7 +66,7 @@ function renderLogin() {
   card.className = "name-card";
   card.innerHTML = `
     <span class="name-badge">로그인이 필요해요</span>
-    <h2 class="name-title">내 결과를 보려면 로그인하세요</h2>
+    <h2 class="name-title">내 도감을 보려면 로그인하세요</h2>
     <p class="name-sub">검사 결과는 로그인 계정에 안전하게 저장됩니다.</p>
     <button class="btn btn-lg btn-kakao" data-p="custom:kakao">카카오로 시작하기</button>
     <button class="btn btn-lg btn-google" data-p="google">구글로 시작하기</button>

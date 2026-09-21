@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>오션(OCEAN) 성격 검사</title>
-  <meta name="description" content="검증된 OCEAN(Big Five) 프레임워크로 5가지 성격 특성을 진단하세요. 50문항 · 약 10분." />
+  <title>유형 테스트 · 유형도감</title>
+  <meta name="description" content="MBTI 유형 검사, 진짜 MBTI 찾기, 에겐·테토 기질 테스트, otype 5축 성격 검사를 지금 바로 시작하세요." />
 
   <!-- 파비콘 / 앱 아이콘 -->
   <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg" />
@@ -15,16 +15,16 @@
 
   <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="OCEAN" />
-  <meta property="og:title" content="오션(OCEAN) 성격 검사" />
-  <meta property="og:description" content="나를 발견하는 심리 검사 플랫폼 · 5가지 핵심 특성을 50문항으로 진단하세요." />
+  <meta property="og:site_name" content="유형도감" />
+  <meta property="og:title" content="유형 테스트 · 유형도감" />
+  <meta property="og:description" content="나를 설명하는 모든 유형, 한 곳에 · 관심 있는 유형 테스트를 지금 시작하세요." />
   <meta property="og:url" content="https://yhyungjun.github.io/otype/" />
   <meta property="og:image" content="https://yhyungjun.github.io/otype/assets/og.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="오션(OCEAN) 성격 검사" />
-  <meta name="twitter:description" content="나를 발견하는 심리 검사 플랫폼" />
+  <meta name="twitter:title" content="유형 테스트 · 유형도감" />
+  <meta name="twitter:description" content="나를 설명하는 모든 유형, 한 곳에" />
   <meta name="twitter:image" content="https://yhyungjun.github.io/otype/assets/og.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -77,12 +77,12 @@
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="index.html">
-        <img class="brand-logo" src="assets/logo-mark.svg" alt="" width="26" height="26" /> OCEAN
+        <img class="brand-logo" src="assets/logo-mark.svg" alt="" width="26" height="26" /> 유형도감
       </a>
       <div class="header-right">
         <nav class="breadcrumb" aria-label="breadcrumb">
           <span>홈</span> <span class="sep">›</span> <span>테스트</span>
-          <span class="sep">›</span> <span class="current">오션 성격 검사</span>
+          <span class="sep">›</span> <span class="current" id="crumb-current">테스트</span>
         </nav>
         <div id="auth-status" class="auth-status"></div>
       </div>
@@ -90,14 +90,12 @@
   </header>
 
   <main class="container">
-    <!-- TODO(P3 2번째 테스트): <head> 메타·OG·브레드크럼과 아래 인트로(hero/discover/faq)는 현재 OCEAN 고정.
-         테스트가 2개 이상이 되면 test.meta 기반으로 동적화할 것. (P1은 단일 테스트라 계획상 허용) -->
     <!-- ===== 랜딩 ===== -->
     <section id="view-intro" class="view active">
       <div class="hero">
-        <h1 id="intro-title">오션 성격 검사</h1>
+        <h1 id="intro-title">otype 성격 검사</h1>
         <p class="lead" id="intro-lead">
-          오션(OCEAN) 성격 검사로 나를 알아보세요.<br />
+          otype 성격 검사로 나를 알아보세요.<br />
           5가지 핵심 특성을 <strong>50문항</strong>으로 정밀하게 진단합니다.
         </p>
 
@@ -117,7 +115,7 @@
         </div>
 
         <button class="btn btn-primary btn-lg" id="intro-start" data-action="start">
-          오션 성격 검사 응시하기
+          otype 성격 검사 시작하기
         </button>
       </div>
 
@@ -129,8 +127,8 @@
       <section class="faq" id="intro-faq">
         <h2>자주 묻는 질문</h2>
         <div id="faq-list">
-          <details><summary>오션(OCEAN) 성격 검사가 무엇인가요?</summary><p>개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.</p></details>
-          <details><summary>MBTI와 무엇이 다른가요?</summary><p>MBTI는 사람을 유형으로 나누지만, 오션은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.</p></details>
+          <details><summary>otype 성격 검사가 무엇인가요?</summary><p>개방성(Openness), 성실성(Conscientiousness), 외향성(Extraversion), 우호성(Agreeableness), 신경성(Neuroticism) 다섯 가지 특성으로 성격을 설명하는, 심리학에서 가장 널리 검증된 모델(Big Five)을 기반으로 합니다.</p></details>
+          <details><summary>MBTI와 무엇이 다른가요?</summary><p>MBTI는 사람을 유형으로 나누지만, otype은 각 특성을 연속적인 정도(스펙트럼)로 측정합니다. 그래서 더 세밀하고 재현성이 높습니다.</p></details>
           <details><summary>결과는 얼마나 정확한가요?</summary><p>본 검사는 공개된 IPIP 문항을 기반으로 한 참고용 진단입니다. 솔직하게 답할수록 자기 이해에 도움이 되는 결과를 얻습니다.</p></details>
         </div>
       </section>
@@ -195,7 +193,7 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container">© 2026 오션(OCEAN) 성격 검사 · IPIP 공개 문항 기반 · <a href="index.html">홈으로</a> · <a href="me.html">내 결과</a> · <a href="dashboard.html">대시보드</a></div>
+    <div class="container">© 2026 유형도감 · <a href="index.html">홈으로</a> · <a href="me.html">내 도감</a> · <a href="dashboard.html">대시보드</a></div>
   </footer>
 
   <script src="vendor/html2canvas.min.js"></script>
