@@ -66,8 +66,8 @@ function renderLogin() {
   card.className = "name-card";
   card.innerHTML = `
     <span class="name-badge">로그인이 필요해요</span>
-    <h2 class="name-title">내 도감을 보려면 로그인하세요</h2>
-    <p class="name-sub">검사 결과는 로그인 계정에 안전하게 저장됩니다.</p>
+    <h2 class="name-title">로그인하고 내 도감을 채워봐요</h2>
+    <p class="name-sub">완료한 검사 결과가 도감에 모여요. 카카오나 구글로 바로 시작할 수 있어요.</p>
     <button class="btn btn-lg btn-kakao" data-p="custom:kakao">카카오로 시작하기</button>
     <button class="btn btn-lg btn-google" data-p="google">구글로 시작하기</button>
     <a class="btn btn-ghost" href="index.html">홈으로</a>`;
@@ -399,10 +399,10 @@ async function renderResults(session) {
     const empty = document.createElement("div");
     empty.className = "name-card";
     empty.innerHTML = `
-      <span class="name-badge">아직 결과가 없어요</span>
-      <h2 class="name-title">첫 검사를 시작해 보세요</h2>
-      <p class="name-sub">검사를 완료하면 결과가 여기에 저장됩니다.</p>
-      <a class="btn btn-primary btn-lg" href="index.html">검사하러 가기</a>`;
+      <span class="name-badge">도감이 비어 있어요</span>
+      <h2 class="name-title">첫 유형을 채워 볼까요?</h2>
+      <p class="name-sub">검사를 완료하면 결과가 여기에 모여요.</p>
+      <a class="btn btn-primary btn-lg" href="index.html">테스트 고르러 가기</a>`;
     root.replaceChildren(empty);
     return;
   }

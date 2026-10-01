@@ -66,6 +66,16 @@ function runTest(test) {
     document.title = `${meta.name} · 유형도감`;
     const crumb = document.getElementById("crumb-current");
     if (crumb) crumb.textContent = meta.name;
+    document.getElementById("topbar-title").textContent = meta.name;
+
+    // 참여수 스탯 — 공개 RPC. MIN_PARTICIPANTS_TO_SHOW 미만이면 항목 자체를 숨긴다.
+    loadTestCounts().then((counts) => {
+      const n = counts[meta.id] || 0;
+      const item = document.getElementById("stat-people-item");
+      if (!item) return;
+      document.getElementById("stat-people").textContent = `${n.toLocaleString("ko-KR")}명`;
+      item.hidden = n < MIN_PARTICIPANTS_TO_SHOW;
+    });
 
     // 디스커버: 미리보기 렌더러가 있는 테스트만 노출. 카드 마크업은 모듈이 그리드에 직접 생성.
     const discover = document.getElementById("intro-discover");
@@ -106,7 +116,6 @@ function runTest(test) {
 
     document.getElementById("q-counter").textContent = `${i + 1} / ${total}`;
     const pct = Math.round(((i + 1) / total) * 100);
-    document.getElementById("q-percent").textContent = `${pct}%`;
     document.getElementById("progress-bar").style.width = `${pct}%`;
 
     document.getElementById("q-index").textContent = `Q${i + 1}`;
@@ -190,6 +199,7 @@ function runTest(test) {
     Object.assign(scores, state.prelude || {});
     const profile = test.buildProfile(scores);
     state.lastResult = { scores, profile };
+    renderSummaryCard(document.getElementById("result-summary"), scores, profile);
     test.renderResult(document.getElementById("result-mount"), {
       scores,
       profile,
@@ -197,6 +207,55 @@ function runTest(test) {
     });
     saveResult(scores, profile);
     show("result");
+  }
+
+  // 결과 상단 공유용 요약 카드 — 내 도감/공유 페이지와 같은 .share-card 포맷 + 브랜드 워터마크.
+  // 이미지 저장은 이 카드만 캡처한다. 텍스트는 모두 textContent 로 주입.
+  function renderSummaryCard(mount, scores, profile) {
+    const type = profile.type;
+    const card = document.createElement("article");
+    card.className = "share-card";
+
+    const cover = document.createElement("header");
+    cover.className = "sc-cover";
+    const kicker = document.createElement("span");
+    kicker.className = "sc-kicker";
+    const today = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
+    kicker.textContent = `${test.meta.name} · ${today}`;
+    const emoji = document.createElement("div");
+    emoji.className = "sc-emoji";
+    emoji.setAttribute("aria-hidden", "true");
+    emoji.textContent = type.emoji || "";
+    const title = document.createElement("h2");
+    title.className = "sc-name";
+    title.textContent = type.title;
+    const sub = document.createElement("p");
+    sub.className = "sc-type";
+    // real-mbti 처럼 role 이 title 과 같은 테스트는 코드만 표시(중복 방지).
+    sub.textContent = type.role && type.role !== type.title ? `${type.code} · ${type.role}` : type.code;
+    const who = document.createElement("p");
+    who.className = "sc-role";
+    who.textContent = state.nickname ? `${state.nickname} 님의 결과` : "";
+    cover.append(kicker, emoji, title, sub, who);
+
+    const viz = document.createElement("div");
+    viz.className = "sc-viz";
+    card.append(cover, viz);
+
+    if (typeof profile.summary === "string" && profile.summary.trim()) {
+      const quote = document.createElement("blockquote");
+      quote.className = "sc-summary";
+      quote.textContent = `“${profile.summary}”`;
+      card.append(quote);
+    }
+
+    const brand = document.createElement("p");
+    brand.className = "sc-brand";
+    brand.textContent = `유형도감 · ${location.host}${location.pathname.replace(/[^/]*$/, "")}`;
+    card.append(brand);
+
+    mount.replaceChildren(card);
+    if (typeof test.renderSummaryViz === "function") test.renderSummaryViz(viz, scores);
   }
 
   /* ---------- 액션 ---------- */
@@ -328,9 +387,9 @@ function runTest(test) {
     );
   }
 
-  /* ---------- 결과 이미지 저장 ---------- */
+  /* ---------- 결과 이미지 저장 (상단 요약 카드만 캡처) ---------- */
   async function saveImage(triggerBtn) {
-    const node = document.querySelector(".result-view");
+    const node = document.querySelector("#result-summary .share-card");
     if (!node || typeof html2canvas === "undefined") {
       toast("이미지 저장을 사용할 수 없어요");
       return;
@@ -340,22 +399,10 @@ function runTest(test) {
 
     try {
       const canvas = await html2canvas(node, {
-        backgroundColor: "#100d24",
+        backgroundColor: "#0f1b34",
         scale: 2,
         useCORS: true,
         logging: false,
-        onclone: (doc) => {
-          // 캡처본에서 액션 버튼 숨기기
-          const actions = doc.querySelector(".result-view .result-actions");
-          if (actions) actions.style.display = "none";
-          // 그라데이션 타이틀은 캡처 시 단색으로 고정(투명 렌더 방지)
-          const title = doc.querySelector(".result-view .cover-title");
-          if (title) {
-            title.style.background = "none";
-            title.style.webkitTextFillColor = "#b9a6ff";
-            title.style.color = "#b9a6ff";
-          }
-        },
       });
 
       const title = state.lastResult?.profile?.type?.title || test.meta.name;

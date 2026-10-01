@@ -9,10 +9,29 @@ function renderHub() {
     const icon = document.createElement("div"); icon.className = "tc-icon"; icon.textContent = t.meta.icon || "🧪";
     const name = document.createElement("h3"); name.className = "tc-name"; name.textContent = t.meta.name;
     const tag = document.createElement("p"); tag.className = "tc-tag"; tag.textContent = t.meta.tagline || "";
-    const body = document.createElement("div"); body.className = "tc-body"; body.append(name, tag);
+    const meta = document.createElement("p"); meta.className = "tc-meta"; meta.dataset.testId = t.meta.id;
+    meta.textContent = cardBasics(t);
+    const body = document.createElement("div"); body.className = "tc-body"; body.append(name, tag, meta);
     a.append(icon, body);
     return a;
   }));
+  fillParticipants(grid);
+}
+
+// 카드 메타의 고정 부분: 소요시간 · 문항수
+function cardBasics(t) {
+  return [t.meta.durationMin ? `약 ${t.meta.durationMin}분` : null, `${t.questions.length}문항`].filter(Boolean).join(" · ");
+}
+
+// 참여수는 RPC 응답 후 앞에 붙인다(MIN_PARTICIPANTS_TO_SHOW 미만이면 생략).
+function fillParticipants(grid) {
+  loadTestCounts().then((counts) => {
+    grid.querySelectorAll(".tc-meta").forEach((meta) => {
+      const n = counts[meta.dataset.testId] || 0;
+      if (n < MIN_PARTICIPANTS_TO_SHOW) return;
+      meta.textContent = `${participantsLabel(n)} · ${meta.textContent}`;
+    });
+  });
 }
 
 // 헤더 로그인 상태 표시(제공자 제공 이름은 textContent로 안전하게 삽입)
