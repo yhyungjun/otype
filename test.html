@@ -100,6 +100,7 @@
         </p>
 
         <div class="meta-row">
+          <div class="meta-item" id="stat-people-item" hidden><strong id="stat-people">0명</strong><span>참여</span></div>
           <div class="meta-item"><strong id="stat-count">50</strong><span>문항</span></div>
           <div class="meta-item"><strong id="stat-duration">10분</strong><span>소요</span></div>
         </div>
@@ -138,8 +139,8 @@
     <section id="view-login" class="view">
       <div class="name-card">
         <span class="name-badge">시작하기 전에</span>
-        <h2 class="name-title">소셜 계정으로 로그인</h2>
-        <p class="name-sub">로그인하면 검사를 시작하고 결과가 안전하게 저장됩니다.</p>
+        <h2 class="name-title">로그인하고 내 도감에 담아요</h2>
+        <p class="name-sub">검사 결과가 내 도감에 저장돼요. 언제든 다시 보고, 친구와 비교할 수 있어요.</p>
         <button class="btn btn-lg btn-kakao" data-action="login-kakao">카카오로 시작하기</button>
         <button class="btn btn-lg btn-google" data-action="login-google">구글로 시작하기</button>
         <p class="name-error" id="login-error"></p>
@@ -158,12 +159,14 @@
 
     <!-- ===== 검사 ===== -->
     <section id="view-test" class="view">
-      <div class="progress-wrap">
-        <div class="progress-head">
-          <span id="q-counter">1 / 50</span>
-          <span id="q-percent">2%</span>
+      <!-- 상단 고정 바: 이전 · 테스트명 · 카운터 + 얇은 진행바 -->
+      <div class="test-topbar" id="test-topbar">
+        <div class="test-topbar-row">
+          <button class="topbar-btn" id="btn-prev" data-action="prev" aria-label="이전 문항">‹</button>
+          <span class="topbar-title" id="topbar-title">테스트</span>
+          <span class="topbar-counter" id="q-counter">1 / 50</span>
         </div>
-        <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+        <div class="progress-track progress-track--thin"><div id="progress-bar" class="progress-bar"></div></div>
       </div>
 
       <div class="question-card" id="question-card">
@@ -173,7 +176,6 @@
       </div>
 
       <div class="test-nav">
-        <button class="btn btn-ghost" id="btn-prev" data-action="prev">← 이전</button>
         <span class="test-hint">답을 선택하면 자동으로 넘어갑니다</span>
         <button class="btn btn-ghost" data-action="home">홈으로</button>
       </div>
@@ -181,13 +183,18 @@
 
     <!-- ===== 결과 ===== -->
     <section id="view-result" class="view result-view">
+      <!-- 공유용 요약 카드(이미지 저장 대상) → 모듈 상세 결과 → 보조 액션 → 하단 고정 CTA -->
+      <div id="result-summary" class="result-summary"></div>
       <div id="result-mount"></div>
 
       <div class="result-actions">
-        <button class="btn btn-primary" data-action="share" disabled>공유 링크 복사</button>
-        <button class="btn btn-primary" data-action="save-image"><svg class="ic-inline"><use href="#ic-image"/></svg>이미지로 저장</button>
         <button class="btn btn-ghost" data-action="restart">다시 검사하기</button>
         <button class="btn btn-ghost" data-action="copy">결과 요약 복사</button>
+      </div>
+
+      <div class="result-cta">
+        <button class="btn btn-primary" data-action="share" disabled>공유 링크 복사</button>
+        <button class="btn btn-light" data-action="save-image"><svg class="ic-inline"><use href="#ic-image"/></svg>이미지 저장</button>
       </div>
     </section>
   </main>
@@ -199,6 +206,7 @@
   <script src="vendor/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
+  <script src="counts.js"></script>
   <script src="tests/ocean/questions.js"></script>
   <script src="tests/ocean/archetypes.js"></script>
   <script src="radar.js"></script>
